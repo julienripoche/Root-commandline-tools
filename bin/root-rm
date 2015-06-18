@@ -1,0 +1,25 @@
+#!/usr/bin/python
+
+"""Commandline to remove an object from a root file"""
+
+from File import *
+from initialize import *
+import ROOT
+
+# Use the itilialize function
+File_list,opt_dict = initialize("rm")
+
+# Start the loop on all files there are to examine
+for root_File in File_list:
+    root_File.open_tfile("update")
+    do_remove = True
+    if not opt_dict['f']:
+        answer = raw_input("Are you sure to remove '{}' from '{}' ? (y/n) : " \
+                           .format(root_File.path[len(root_File.path)-1],root_File.name))
+        if answer.lower() != 'y':
+            do_remove = False
+    if do_remove:
+        root_File.change_directory(len(root_File.path)-1)
+        root_File.current_directory.Delete(root_File.path[len(root_File.path)-1]+";*")
+        # It doesn't work without the +";*" for cycles
+    root_File.close_tfile()

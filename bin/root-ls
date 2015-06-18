@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+"""commandline to print some informations about the contents of a root file"""
+
+from File import *
+from initialize import *
+from pprint_lite import *
+from pprint_long import *
+import os
+import ROOT
+
+# Use the itilialize function 
+File_list,opt_dict = initialize("ls")
+
+# Start the loop on all files there are to examine
+first_round = True
+for root_File in File_list:
+    # Open the TFile
+    root_File.open_tfile()
+
+    # Fill the key list
+    root_File.change_directory(len(root_File.path))
+    if root_File.is_directory:
+        key_list = root_File.current_directory.GetListOfKeys() # Take the list of keys
+        key_list = [key for key in key_list] # Convert TList in list
+        key_list.sort() # Put in alphabetic order
+        if key_list == []:
+            continue
+    else:
+        key_list = [root_File.current_directory.GetKey(obj) for obj in root_File.objects]
+    
+    # Begining of the print information
+    if len(File_list) > 1 and not first_round: # Separator if there is many Files
+        print("")
+    else:
+        first_round = False
+    if len(File_list) > 1: # Paths of file and object
+        if root_File.path == []:
+            print("{} :".format(root_File.name))
+        else:
+            print("{}:{} :".format(root_File.name,root_File.path_string()))
+
+    # Print the informations
+    if opt_dict['l']:
+        pprint_long(key_list)
+    else:
+        # Don't forget color and bold, make a different function
+        name_list = [key.GetName() for key in key_list]
+        pprint_lite(name_list)
+
+    # End of the loop
+    root_File.close_tfile()

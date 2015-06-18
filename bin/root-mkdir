@@ -1,0 +1,29 @@
+#!/usr/bin/python
+
+"""Commandline to add a directory in a root file"""
+
+from File import *
+from initialize import *
+import ROOT
+
+# Use the itilialize function
+File_list,opt_dict = initialize("mkdir")
+
+# Start the loop on all files there are to examine
+for root_File in File_list:
+    root_File.open_tfile("update")
+    i = 0
+    while i < len(root_File.path): # Loop to forward in the path
+        already_exist = False
+        for key in root_File.current_directory.GetListOfKeys():
+            # Loop on the objects (there keys) to find if the actual directory 'dir' already exists
+            if key.GetName() == root_File.path[i] and "TDirectory" in key.GetClassName():
+                already_exist = True
+                break
+        if not already_exist: # If the directory doesn't exist make it
+            root_File.current_directory.mkdir(root_File.path[i])
+        root_File.change_directory(i+1) # Change directory by one step
+        i += 1
+    if already_exist: # If the directory already exists : error !
+        print("root-mkdir: cannot create TDirectoryFile '{}': It already exists".format(root_File.path[len(root_File.path)-1]))
+    root_File.close_tfile()
