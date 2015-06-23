@@ -2,44 +2,26 @@
 
 """Commandline to move an object from a root file to an other root file"""
 
-from pattern_to_file import *
-from pattern_to_object import *
+from pattern_to_dict import *
 from DirCopy import *
 import argparse
 import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="commandline to move an object from a root file to an other")
-parser.add_argument("complete_pattern_source", \
+parser.add_argument("source_pattern_list", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
-parser.add_argument("complete_pattern_dest", \
+parser.add_argument("dest_pattern", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
 args = parser.parse_args()
 
-# Create a dictionnary with file_name as key and which contains list of paths
-source_dict = {}
-for complete_pattern in args.complete_pattern_source:
-    complete_pattern_split = complete_pattern.split(":")
-    if complete_pattern_split[0] in ["http","https","ftp"]: # File from the web
-        complete_pattern_split[0] += ":"+complete_pattern_split[1]
-        del complete_pattern_split[1]
-        name_list = [complete_pattern_split[0]]
-    else: # Or not
-        name_list = pattern_to_file(complete_pattern_split[0])
-    for file_name in name_list:
-        if len(complete_pattern_split)==2: # There is a pattern
-            pattern = complete_pattern_split[1]
-            path_list = pattern_to_object(file_name,pattern)
-        else:
-            path_list = []
-        if not file_name in source_dict:
-            source_dict[file_name] = path_list
-        else:
-            source_dict[file_name].extend(path_list)
+# Create a dictionnary with ROOT file name as key
+# and which contains list of paths
+source_dict = pattern_to_dict(args.source_pattern_list)
 
 # Create a dictionnary with file_name as key and which contains list of paths
-complete_pattern = args.complete_pattern_dest
+complete_pattern = args.dest_pattern
 complete_pattern_split = complete_pattern.split(":")
 
 if complete_pattern_split[0] in ["http","https","ftp"]: # File from the web
@@ -60,8 +42,8 @@ else:
 
 # Create a dictionnary with options
 opt_dict = vars(args)
-del opt_dict["complete_pattern_source"]
-del opt_dict["complete_pattern_dest"]
+del opt_dict["source_pattern_list"]
+del opt_dict["dest_pattern"]
 
 # Loop on the root files
 dest_file = ROOT.TFile.Open(dest_name,"update")
