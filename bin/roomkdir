@@ -1,0 +1,31 @@
+#!/usr/bin/python
+
+"""Commandline to add a directory in a root file"""
+
+from regexp.pattern_to_dict import *
+from utils.chg_dir import *
+import argparse
+import ROOT
+
+# Collect arguments with the module argparse
+parser = argparse.ArgumentParser(description="make TDirectoryFile in a ROOT file")
+parser.add_argument("pattern_list", \
+                    help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
+                    nargs='+')
+args = parser.parse_args()
+
+# Create a dictionnary with ROOT file name as key
+# and which contains list of paths
+file_dict = pattern_to_dict_mkdir(args.pattern_list)
+
+# Create a dictionnary with options
+opt_dict = vars(args)
+del opt_dict["pattern_list"]
+
+# Loop on the root files
+for file_name in file_dict.keys():
+    root_file = ROOT.TFile.Open(file_name,"update")
+    for path in file_dict[file_name]:
+        chg_dir(root_file,path[:-1])
+        ROOT.gDirectory.mkdir(path[-1])
+    root_file.Close()

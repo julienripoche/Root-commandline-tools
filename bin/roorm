@@ -1,0 +1,38 @@
+#!/usr/bin/python
+
+"""Commandline to remove an object from a root file"""
+
+from regexp.pattern_to_dict import *
+import argparse
+import ROOT
+
+# Collect arguments with the module argparse
+parser = argparse.ArgumentParser(description="remove objects from a ROOT file")
+parser.add_argument("-f", help="force the removing", action="store_true")
+parser.add_argument("pattern_list", \
+                    help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
+                    nargs='+')
+args = parser.parse_args()
+
+# Create a dictionnary with ROOT file name as key
+# and which contains list of paths
+file_dict = pattern_to_dict(args.pattern_list)
+
+# Create a dictionnary with options
+opt_dict = vars(args)
+del opt_dict["pattern_list"]
+
+# Loop on the root files
+for file_name in file_dict.keys():
+    root_file = ROOT.TFile.Open(file_name,"update")
+    for path in file_dict[file_name]:
+        do_remove = True
+        if not opt_dict['f']:
+            answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
+                               .format("/".join(path),file_name))
+            if answer.lower() != 'y':
+                do_remove = False
+        if do_remove:
+            chg_dir(root_file,path[:-1])
+            ROOT.gDirectory.Delete(path[-1]+";*") # It doesn't work without the +";*" for cycles
+    root_file.Close()
