@@ -7,7 +7,7 @@
 
 import sys
 from pretty_print import *
-from utils.get_terminal_size import *
+from get_terminal_size import *
 
 def pprint_ls(input_list):
     if len(input_list) == 0:

@@ -2,8 +2,8 @@
 
 """rtrthrth"""
 
-from regexp.pattern_to_dict import *
-from utils.chg_dir import *
+from pattern_to_dict import *
+from chg_dir import *
 import argparse
 import os
 import ROOT

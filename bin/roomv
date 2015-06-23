@@ -2,9 +2,9 @@
 
 """Commandline to move an object from a root file to an other root file"""
 
-from regexp.pattern_to_file import *
-from regexp.pattern_to_object import *
-from utils.DirCopy import *
+from pattern_to_file import *
+from pattern_to_object import *
+from DirCopy import *
 import argparse
 import ROOT
 

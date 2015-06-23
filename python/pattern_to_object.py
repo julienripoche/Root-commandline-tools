@@ -5,7 +5,7 @@ object in a file that match with a pattern"""
 
 import os
 import fnmatch
-from utils.chg_dir import *
+from chg_dir import *
 
 def pattern_to_object(file_name,pattern):
     """Put in a list the paths that match with the pattern"""

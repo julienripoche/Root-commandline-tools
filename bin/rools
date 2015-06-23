@@ -2,10 +2,10 @@
 
 """commandline to print some informations about the contents of a root file"""
 
-from regexp.pattern_to_dict import *
-from viewing.pprint_long_ls import *
-from viewing.pprint_ls import *
-from utils.is_directory import *
+from pattern_to_dict import *
+from pprint_long_ls import *
+from pprint_ls import *
+from is_directory import *
 import argparse
 import os
 import ROOT

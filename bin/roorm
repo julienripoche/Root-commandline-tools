@@ -2,7 +2,7 @@
 
 """Commandline to remove an object from a root file"""
 
-from regexp.pattern_to_dict import *
+from pattern_to_dict import *
 import argparse
 import ROOT
 

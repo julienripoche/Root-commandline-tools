@@ -2,9 +2,9 @@
 
 """Commandline to copy an object from a root file to an other root file"""
 
-from regexp.pattern_to_file import *
-from regexp.pattern_to_object import *
-from utils.DirCopy import *
+from pattern_to_file import *
+from pattern_to_object import *
+from DirCopy import *
 import argparse
 import ROOT
 
@@ -33,10 +33,10 @@ for complete_pattern in args.complete_pattern_source:
             path_list = pattern_to_object(file_name,pattern)
         else:
             path_list = []
-        if not file_name in file_dict:
-            file_dict[file_name] = path_list
+        if not file_name in source_dict:
+            source_dict[file_name] = path_list
         else:
-            file_dict[file_name].extend(path_list)
+            source_dict[file_name].extend(path_list)
 
 # Create a dictionnary with file_name as key and which contains list of paths
 complete_pattern = args.complete_pattern_dest
