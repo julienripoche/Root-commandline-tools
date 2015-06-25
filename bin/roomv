@@ -23,10 +23,8 @@ for pattern in args.source_pattern_list:
     source_list.extend(pattern_to_tuple(pattern))
 
 # Create a ROOT file name and a path in this file
-#dest_name,dest_path_list = pattern_to_tuple_mkdir(args.dest_pattern)
-#################################################################################33
-file_list = pattern_to_tuple(args.dest_pattern,regexp=False)
-dest_name,dest_path_list = file_list[0]
+dest_list = pattern_to_tuple(args.dest_pattern,regexp=False)
+dest_name,dest_path_list = dest_list[0]
 dest_path = dest_path_list[0]
 
 # Create a dictionnary with options

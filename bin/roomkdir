@@ -18,8 +18,6 @@ args = parser.parse_args()
 # Create a list of tuples that contain a ROOT file name and a list of path in this file
 file_list = []
 for pattern in args.pattern_list:
-    #file_list.append(pattern_to_tuple_mkdir(pattern))
-    ####################################################################
     file_list.extend(pattern_to_tuple(pattern,regexp=False))
 
 # Create a dictionnary with options
