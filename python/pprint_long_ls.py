@@ -40,5 +40,10 @@ def pprint_long_ls(key_list):
     dic = {"class_width":max_class+2,"time_width":max_time+2,"name_width":max_name+2,"title_width":max_title}
 
     # Print loop
-    for rec in data_source: 
+    for i,rec in enumerate(data_source): 
+        # Remove the spaces after the last print
+        if i == len(data_source)-1:
+            dic["title_width"] = 1
+        i+=1
+        # Print
         print template.format(*rec,**dic)

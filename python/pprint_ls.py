@@ -29,6 +29,10 @@ def pprint_ls(input_list):
             if sum( col_widths ) <= term_width: break
             else: ncol -= 1
     for i, x in enumerate(input_list):
-        sys.stdout.write(x.ljust(col_widths[i%ncol]))
+        if i != len(input_list)-1:
+            sys.stdout.write(x.ljust(col_widths[i%ncol]))
+        else:
+            # Don't add spaces after the last print
+            sys.stdout.write(x)
         if i == len(input_list) - 1 or (i+1) % ncol == 0:
             sys.stdout.write('\n')

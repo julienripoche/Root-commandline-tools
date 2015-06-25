@@ -2,30 +2,35 @@
 
 """Commandline to add a directory in a root file"""
 
-from pattern_to_dict import *
-from chg_dir import *
+from pattern_to_tuple import *
+from roomkdir_mkdir import *
 import argparse
 import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="make TDirectoryFile in a ROOT file")
+parser.add_argument("-p", help="make parent directories as needed", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
 args = parser.parse_args()
 
-# Create a dictionnary with ROOT file name as key
-# and which contains list of paths
-file_dict = pattern_to_dict_mkdir(args.pattern_list)
+# Create a list of tuples that contain a ROOT file name and a list of path in this file
+file_list = []
+for pattern in args.pattern_list:
+    file_list.append(pattern_to_tuple_mkdir(pattern))
 
 # Create a dictionnary with options
 opt_dict = vars(args)
 del opt_dict["pattern_list"]
 
-# Loop on the root files
-for file_name in file_dict.keys():
+# Loop on the ROOT files
+for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name,"update")
-    for path in file_dict[file_name]:
-        chg_dir(root_file,path[:-1])
-        ROOT.gDirectory.mkdir(path[-1])
+    for path in path_list:
+        if not opt_dict["p"]:
+            roomkdir_mkdir(root_file,path)
     root_file.Close()
+
+if opt_dict["p"]:
+    print("Parent option still not implemented")

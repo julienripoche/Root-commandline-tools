@@ -2,8 +2,9 @@
 
 """Commandline to move an object from a root file to an other root file"""
 
-from pattern_to_dict import *
-from DirCopy import *
+from pattern_to_tuple import *
+from roocp_copy import *
+from roorm_delete import *
 import argparse
 import ROOT
 
@@ -16,29 +17,14 @@ parser.add_argument("dest_pattern", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
 args = parser.parse_args()
 
-# Create a dictionnary with ROOT file name as key
-# and which contains list of paths
-source_dict = pattern_to_dict(args.source_pattern_list)
+# Create a list of tuples that contain a ROOT file name and a list of path in this file
+source_list = []
+for pattern in args.source_pattern_list:
+    source_list.extend(pattern_to_tuple(pattern))
 
-# Create a dictionnary with file_name as key and which contains list of paths
-complete_pattern = args.dest_pattern
-complete_pattern_split = complete_pattern.split(":")
-
-if complete_pattern_split[0] in ["http","https","ftp"]: # File from the web
-    complete_pattern_split[0] += ":"+complete_pattern_split[1]
-    del complete_pattern_split[1]
-    dest_name = complete_pattern_split[0]
-else: # Or not
-    pattern_name = complete_pattern_split[0]
-    dest_name = os.path.abspath(os.path.expanduser(os.path.normpath(pattern_name)))
-
-if len(complete_pattern_split)==2: # There is a pattern
-    pattern = complete_pattern_split[1]
-    pattern_norm = os.path.normpath(pattern)
-    pattern_split = pattern_norm.split("/")
-    dest_path = pattern_split
-else:
-    dest_path = []
+# Create a ROOT file name and a path in this file
+dest_name,dest_path_list = pattern_to_tuple_mkdir(args.dest_pattern)
+dest_path = dest_path_list[0]
 
 # Create a dictionnary with options
 opt_dict = vars(args)
@@ -47,40 +33,20 @@ del opt_dict["dest_pattern"]
 
 # Loop on the root files
 dest_file = ROOT.TFile.Open(dest_name,"update")
-for source_name, path_list in source_dict.items():
+for source_name, path_list in source_list:
+
     if source_name != dest_name:
         source_file = ROOT.TFile.Open(source_name,"update")
     else:
         source_file = dest_file
-    if path_list == []:
-        source_file.cd()
-        path_list = [[key.GetName()] for key in ROOT.gDirectory.GetListOfKeys()]
-    for source_path in path_list:
-        chg_dir(source_file,source_path[:-1])
-        key = ROOT.gDirectory.GetKey(source_path[-1])
-        classname = key.GetClassName()
-        cl = ROOT.gROOT.GetClass(classname)
-        if (not cl):
-            continue
-        if (cl.InheritsFrom(ROOT.TDirectory.Class())):
-            chg_dir(source_file,source_path[:-1])
-            subdir = ROOT.gDirectory.Get(source_path[-1]) # Get the TDirectory ...
-            chg_dir(dest_file,dest_path)
-            CopyDir(subdir)
-            chg_dir(dest_file,dest_path)
-        #else if (cl.InheritsFrom(ROOT.TTree::Class())):
-        #    TTree *T = (TTree*)source.Get(key.GetName())
-        #    adir.cd()
-        #    TTree *newT = T.CloneTree(-1,"fast")
-        #    newT.Write()
-        else :
-            chg_dir(source_file,source_path[:-1])
-            obj = key.ReadObj()
-            chg_dir(dest_file,dest_path)
-            obj.Write()
 
-        chg_dir(source_file,source_path[:-1])
-        ROOT.gDirectory.Delete(source_path[-1]+";*") # It doesn't work without the +";*" for cycles
+    for source_path in path_list:
+        if source_path != []:
+            roocp_copy(source_file,source_path,dest_file,dest_path)
+            roorm_delete(source_file,source_path)
+        else :
+            source_file.cd()
+            path_list.extend([[key.GetName()] for key in ROOT.gDirectory.GetListOfKeys()])
 
     if source_name != dest_name:
         source_file.Close()

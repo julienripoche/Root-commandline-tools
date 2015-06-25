@@ -10,12 +10,12 @@ from chg_dir import *
 def pattern_to_object(file_name,pattern):
     """Put in a list the paths that match with the pattern"""
 
-    # Treatment of the pattern to have something comparable to a normalize path
-    pattern_norm = os.path.normpath(pattern)
-    pattern_split = pattern_norm.split("/")
+    pattern_split = pattern.split("/")
+    pattern_split = [n for n in pattern_split if n != ""]
 
-    if pattern_split == ["."]:
-        return []
+    # Full ROOT file, unnecessary but if not then opening of root_file unnecessary...
+    if pattern_split == []:
+        return [[]]
 
     root_file = ROOT.TFile.Open(file_name)
     path_list = [[]]
@@ -31,6 +31,6 @@ def pattern_to_object(file_name,pattern):
         path_list = new_path_list
 
     if path_list == []:
-        print("rools: cannot access {0}: No such file or directory".format(pattern_norm))
+        print("rools: cannot access {0}: No such file or directory".format(pattern))
 
     return path_list

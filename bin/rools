@@ -2,12 +2,10 @@
 
 """commandline to print some informations about the contents of a root file"""
 
-from pattern_to_dict import *
-from pprint_long_ls import *
-from pprint_ls import *
-from is_directory import *
+from pattern_to_tuple import *
+from rools_print import *
+from dir_selector import *
 import argparse
-import os
 import ROOT
 
 # Collect arguments with the module argparse
@@ -18,61 +16,46 @@ parser.add_argument("pattern_list", \
                     nargs='+')
 args = parser.parse_args()
 
-# Create a dictionnary with ROOT file name as key
-# and which contains list of paths
-file_dict = pattern_to_dict(args.pattern_list)
+# Create a list of tuples that contain a ROOT file name and a list of path in this file
+file_list = []
+for pattern in args.pattern_list:
+    file_list.extend(pattern_to_tuple(pattern))
 
 # Create a dictionnary with options
 opt_dict = vars(args)
 del opt_dict["pattern_list"]
 
-# Loop on the root files
+# Loop on the ROOT files
 first_round = True
-for file_name, path_list in file_dict.items():
+for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
-
-    # Fill the key list
-    key_list = []
-    dir_dict = {}
-    if file_dict[file_name] != []:
-        for path in path_list:
-            chg_dir(root_file,path[:-1])
-            if is_directory(ROOT.gDirectory.GetKey(path[-1])):
-                chg_dir(root_file,path)
-                dir_dict["/".join(path)] = ROOT.gDirectory.GetListOfKeys()
-            else:
-                key_list.append(ROOT.gDirectory.GetKey(path[-1]))
-    else:
-        key_list.extend([key for key in ROOT.gDirectory.GetListOfKeys()])
+    obj_list,dir_list = dir_selector(root_file,path_list)
+    key_list = [get_key(root_file,path) for path in obj_list]
     
-    # Beginning of the print information
-    if len(file_dict) > 1 and not first_round: # Separator if there is many Files
-        print("")
+    # Heading
+    if len(file_list) > 1 and not first_round:
+        print("") # Separator if there is many File
     else:
         first_round = False
-    if len(file_dict) > 1: # Paths of file and object
+    if len(file_list) > 1: # Paths of file and object
 	print("{0} :".format(file_name))
 
-    # Print the informations
-    if opt_dict['l']:
-        pprint_long_ls(key_list)
-    else:
-        # Don't forget color and bold, make a different function
-        name_list = [key.GetName() for key in key_list]
-        pprint_ls(name_list)
+    # Print with rools style
+    rools_print(key_list,opt_dict)
 
-    for path, key_list in dir_dict.items():
-        # Beginning of the print information
-        if len(file_dict) > 1 or len(dir_dict) > 1:
+    first_round2 = True
+    for path in dir_list:
+        key_list = get_key_list(root_file,path)
+        
+        # Heading
+        if (len(file_list) > 1 or len(dir_list) > 1) and not first_round2:
             print("") # Separator if there is many Files
-            print("{0} :".format(path)) # Paths of file and object
-
-        # Print the informations
-        if opt_dict['l']:
-            pprint_long_ls(key_list)
         else:
-            # Don't forget color and bold, make a different function
-            name_list = [key.GetName() for key in key_list]
-            pprint_ls(name_list)  
+            first_round2 = False
+        if (len(file_list) > 1 or len(dir_list) > 1): # Paths of file and object
+            print("{0} :".format("/".join(path)))
 
+        # Print with rools style
+        rools_print(key_list,opt_dict)
+            
     root_file.Close()
