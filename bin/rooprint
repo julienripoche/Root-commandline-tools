@@ -4,13 +4,14 @@
 
 from pattern_to_tuple import *
 from dir_selector import *
+from is_directory import *
 import argparse
 import os
 import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
-parser.add_argument("-o", help="place output in file file.pdf", action="store_true")
+parser.add_argument("-o", "--output", help="place output in file file.pdf")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
@@ -21,40 +22,56 @@ file_list = []
 for pattern in args.pattern_list:
     file_list.extend(pattern_to_tuple(pattern))
 
+# Create a dictionnary with options
+opt_dict = vars(args)
+del opt_dict["pattern_list"]
+
 # Initialize the canvas
 ROOT.gErrorIgnoreLevel = 9999
 ROOT.gROOT.SetBatch()
 canvas = ROOT.TCanvas("canvas")
 
+# Beginning
+if opt_dict["output"]:
+    output_name = opt_dict["output"]
+    canvas.Print(output_name+"[")
+
 # Loop on the root files
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
 
-    # Name of the pdf file
-    output_name = root_file.GetName()
-    if output_name[-5:]==".root":
-        output_name = output_name[:-5]+".pdf"
-    else:
-        output_name += ".pdf"
+    # Name the pdf file
+    if not opt_dict["output"]:
+        output_name = root_file.GetName()
+        if output_name[-5:]==".root":
+            output_name = output_name[:-5]+".pdf"
+        else:
+            output_name += ".pdf"
 
+    # Fill the key list
     obj_list,dir_list = dir_selector(root_file,path_list)
     key_list = [get_key(root_file,path) for path in obj_list]
+    for path in dir_list:
+        key_list.extend(get_key_list(root_file,path))
+    key_list = [key for key in key_list if not is_directory(key)]
 
-    #for path in dir_list:
-    #    key_list = get_key_list(root_file,path)
+    # Beginning
+    if not opt_dict["output"]:
+        canvas.Print(output_name+"[")
 
+    # Loop
     for i,key in enumerate(key_list):
-    
-        # Read the object and print in the canvas
         obj = key.ReadObj()
         obj.Draw()
         obj_title = "Title:"+key.GetClassName()+" : "+key.GetTitle()
+        canvas.Print(output_name,obj_title)
 
-        if len(key_list) > 1 and i == 0:
-            canvas.Print(output_name+"(",obj_title)
-        elif len(key_list) > 1 and i == len(key_list) - 1:
-            canvas.Print(output_name+")",obj_title)
-        else:
-            canvas.Print(output_name,obj_title)
+    # Ending
+    if not opt_dict["output"]:
+        canvas.Print(output_name+"]",obj_title)
 
     root_file.Close()
+
+# Ending
+if opt_dict["output"]:
+    canvas.Print(output_name+"]",obj_title)
