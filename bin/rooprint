@@ -41,12 +41,12 @@ for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
 
     # Name the pdf file
-    if not opt_dict["output"]:
-        output_name = root_file.GetName()
-        if output_name[-5:]==".root":
-            output_name = output_name[:-5]+".pdf"
-        else:
-            output_name += ".pdf"
+    #if not opt_dict["output"]:
+    #    output_name = root_file.GetName()
+    #    if output_name[-5:]==".root":
+    #        output_name = output_name[:-5]
+    #    else:
+    #        output_name
 
     # Fill the key list
     obj_list,dir_list = dir_selector(root_file,path_list)
@@ -54,22 +54,23 @@ for file_name, path_list in file_list:
     for path in dir_list:
         key_list.extend(get_key_list(root_file,path))
     key_list = [key for key in key_list if not is_directory(key)]
-    #key_list.sort()
-
-    # Beginning
-    if not opt_dict["output"]:
-        canvas.Print(output_name+"[")
+    #key_list.sort() #????
 
     # Loop
     for i,key in enumerate(key_list):
+        # Beginning
+        if not opt_dict["output"]:
+            output_name = key.GetName()+".pdf"
+            canvas.Print(output_name+"[")
+
         obj = key.ReadObj()
         obj.Draw()
         obj_title = "Title:"+key.GetClassName()+" : "+key.GetTitle()
         canvas.Print(output_name,obj_title)
 
-    # Ending
-    if not opt_dict["output"]:
-        canvas.Print(output_name+"]",obj_title)
+        # Ending
+        if not opt_dict["output"]:
+            canvas.Print(output_name+"]",obj_title)
 
     root_file.Close()
 
