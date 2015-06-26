@@ -34,6 +34,7 @@ for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
     obj_list,dir_list = dir_selector(root_file,path_list)
     key_list = [get_key(root_file,path) for path in obj_list]
+    key_list.sort()
 
     # Heading
     if len(file_list) > 1 and not first_round_file:
@@ -51,11 +52,12 @@ for file_name, path_list in file_list:
     first_round_directory = True
     for path in dir_list:
         key_list = get_key_list(root_file,path)
+        key_list.sort()
         
         # Heading
         if (len(path_list) > 1 and not first_round_directory) or not_dir_objects_first:
             print("") # Separator if there is many Files
-            not_dir_objects_first = False
+        not_dir_objects_first = False
         first_round_directory = False
         if len(path_list) > 1: # Paths of file and object
             print("{0} :".format("/".join(path)))

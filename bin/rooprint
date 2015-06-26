@@ -54,6 +54,7 @@ for file_name, path_list in file_list:
     for path in dir_list:
         key_list.extend(get_key_list(root_file,path))
     key_list = [key for key in key_list if not is_directory(key)]
+    #key_list.sort()
 
     # Beginning
     if not opt_dict["output"]:
