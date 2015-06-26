@@ -42,12 +42,8 @@ for source_name, path_list in source_list:
         source_file = dest_file
 
     for source_path in path_list:
-        if source_path != []:
-            roocp_copy(source_file,source_path,dest_file,dest_path)
-            roorm_delete(source_file,source_path)
-        else :
-            source_file.cd()
-            path_list.extend([[key.GetName()] for key in ROOT.gDirectory.GetListOfKeys()])
+        roocp_copy(source_file,source_path,dest_file,dest_path)
+        roorm_delete(source_file,source_path)
 
     if source_name != dest_name:
         source_file.Close()

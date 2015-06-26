@@ -3,6 +3,7 @@
 """Commandline to remove an object from a root file"""
 
 from chg_dir import *
+import os
 import ROOT
 
 def roorm_delete(root_file,path):
@@ -11,4 +12,4 @@ def roorm_delete(root_file,path):
         ROOT.gDirectory.Delete(path[-1]+";*")
         # It doesn't work without the +";*" for cycles
     else:
-        print("You want to delete a entire file, it's not currently possible")
+        os.system("rm {}".format(root_file.GetName()))

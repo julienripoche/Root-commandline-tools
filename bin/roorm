@@ -31,8 +31,12 @@ for file_name, path_list in file_list:
     for path in path_list:
         do_remove = True
         if not opt_dict['force']:
-            answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
-                               .format("/".join(path),file_name))
+            if path != []:
+                answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
+                                   .format("/".join(path),file_name))
+            else:
+                answer = raw_input("Are you sure to remove '{0}' ? (y/n) : " \
+                                   .format(file_name))
             if answer.lower() != 'y':
                 do_remove = False
         if do_remove:
