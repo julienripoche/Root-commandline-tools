@@ -2,11 +2,13 @@
 
 """commandline to print some informations about the contents of a root file"""
 
+import os
+import argparse
+import ROOT
 from pattern_to_tuple import *
 from rools_print import *
 from dir_selector import *
-import argparse
-import ROOT
+
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
@@ -26,33 +28,36 @@ opt_dict = vars(args)
 del opt_dict["pattern_list"]
 
 # Loop on the ROOT files
-first_round = True
+first_round_file = True
+not_dir_objects_first = False
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
     obj_list,dir_list = dir_selector(root_file,path_list)
     key_list = [get_key(root_file,path) for path in obj_list]
-    
+
     # Heading
-    if len(file_list) > 1 and not first_round:
+    if len(file_list) > 1 and not first_round_file:
         print("") # Separator if there is many File
     else:
-        first_round = False
+        first_round_file = False
     if len(file_list) > 1: # Paths of file and object
 	print("{0} :".format(file_name))
+    if key_list != []:
+        not_dir_objects_first = True
 
     # Print with rools style
     rools_print(key_list,opt_dict)
 
-    first_round2 = True
+    first_round_directory = True
     for path in dir_list:
         key_list = get_key_list(root_file,path)
         
         # Heading
-        if (len(file_list) > 1 or len(dir_list) > 1) and not first_round2:
+        if (len(path_list) > 1 and not first_round_directory) or not_dir_objects_first:
             print("") # Separator if there is many Files
-        else:
-            first_round2 = False
-        if (len(file_list) > 1 or len(dir_list) > 1): # Paths of file and object
+            not_dir_objects_first = False
+        first_round_directory = False
+        if len(path_list) > 1: # Paths of file and object
             print("{0} :".format("/".join(path)))
 
         # Print with rools style
