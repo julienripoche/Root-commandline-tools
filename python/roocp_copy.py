@@ -2,7 +2,7 @@
 
 """Commandline to copy an object from a root file to an other root file"""
 
-from DirCopy import *
+from copy_dir import *
 from dir_selector import *
 import ROOT
 
@@ -16,7 +16,7 @@ def roocp_copy(source_file,source_path,dest_file,dest_path):
         chg_dir(source_file,source_path[:-1])
         subdir = ROOT.gDirectory.Get(source_path[-1]) # Get the TDirectory ...
         chg_dir(dest_file,dest_path)
-        CopyDir(subdir)
+        copy_dir(subdir)
         chg_dir(dest_file,dest_path)
     else :
         chg_dir(source_file,source_path[:-1])

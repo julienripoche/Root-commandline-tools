@@ -5,7 +5,7 @@ $ROOTSYS/tutorials/io/copyFiles.C"""
 
 import ROOT
 
-def CopyDir(source):
+def copy_dir(source):
     # copy all objects and subdirs of directory source as a subdir of the current directory
     savdir = ROOT.gDirectory
     adir = savdir.mkdir(source.GetName())
@@ -19,7 +19,7 @@ def CopyDir(source):
         if (cl.InheritsFrom(ROOT.TDirectory.Class())):
             subdir = source.Get(key.GetName()) # Get the TDirectory...
             adir.cd()
-            CopyDir(subdir)
+            copy_dir(subdir)
             adir.cd()
         else:
             source.cd()
