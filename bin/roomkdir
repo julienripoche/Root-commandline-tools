@@ -9,7 +9,7 @@ import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="make TDirectoryFile in a ROOT file")
-parser.add_argument("-p", help="make parent directories as needed", action="store_true")
+parser.add_argument("-p", "--parents", help="make parent directories as needed", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
@@ -32,5 +32,5 @@ for file_name, path_list in file_list:
             roomkdir_mkdir(root_file,path)
     root_file.Close()
 
-if opt_dict["p"]:
+if opt_dict["parents"]:
     print("Parent option still not implemented")

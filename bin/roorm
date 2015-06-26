@@ -9,7 +9,7 @@ import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="remove objects from a ROOT file")
-parser.add_argument("-f", help="force the removing", action="store_true")
+parser.add_argument("-f", "--force", help="force the removing", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
@@ -30,7 +30,7 @@ for file_name, path_list in file_list:
 
     for path in path_list:
         do_remove = True
-        if not opt_dict['f']:
+        if not opt_dict['force']:
             answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
                                .format("/".join(path),file_name))
             if answer.lower() != 'y':
