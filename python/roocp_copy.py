@@ -2,9 +2,34 @@
 
 """Commandline to copy an object from a root file to an other root file"""
 
-from copy_dir import *
+from is_directory import *
 from dir_selector import *
 import ROOT
+
+def copy_dir(source):
+    """Python adaptation of a root input/output tutorial :
+    $ROOTSYS/tutorials/io/copyFiles.C"""
+    # copy all objects and subdirs of directory source as a subdir of the current directory
+    savdir = ROOT.gDirectory
+    adir = savdir.mkdir(source.GetName())
+    adir.cd()
+    # loop on all entries of this directory
+    for key in source.GetListOfKeys():
+        classname = key.GetClassName()
+        cl = ROOT.gROOT.GetClass(classname)
+        if is_directory(key):
+            subdir = source.Get(key.GetName()) # Get the TDirectory...
+            adir.cd()
+            copy_dir(subdir)
+            adir.cd()
+        else:
+            source.cd()
+            obj = key.ReadObj()
+            adir.cd()
+            obj.Write()
+  
+    adir.SaveSelf(ROOT.kTRUE)
+    savdir.cd()
 
 def roocp_copy(source_file,source_path,dest_file,dest_path):
     if source_path == []:
