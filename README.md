@@ -3,7 +3,7 @@
 These are several ROOT commandline tools which have the goal to inspect
 and to act on root file contents directly from a unix terminal.
 
-At this time, there are:
+## Short description
 
     o rools:    Print the content of a root file or subdirectory (like ls)
                 -l option exists (like with ls) and give access to class,
@@ -22,9 +22,9 @@ At this time, there are:
                 -o option exists and allows to put all the histograms
                 and graphs in the same pdf file
 
-Let's be pragmatic, here are some examples:
+## Some examples
 
-About rools:
+### rools
 
 > rools file.root
 
@@ -59,7 +59,7 @@ hist1
 
 hist3 hist4
 
-Which is really usefull with these commandlines is that they accept regular expressions:
+Which is really usefull with these commandlines is that they accept regular expressions.
 
 > rools file.root:hist*
 
@@ -81,7 +81,21 @@ dir1  dir2  hist1 hist2
 /dir/dir/dir/file2.root :  
 graph1 graph2
 
-About roocp:
+> rools *.root:*
+
+/dir/dir/dir/file.root :  
+hist1 hist2
+
+dir1 :  
+hist3 hist4
+
+dir2 :  
+hist5 hist6
+
+/dir/dir/dir/file2.root :  
+graph1 graph2
+
+### roocp
 
 > roocp file2.root:graph1 file.root
 > rools *.root
@@ -93,7 +107,7 @@ dir1   dir2   graph1 hist1  hist2
 graph1 graph2
 
 
-About roorm:
+### roorm
 
 > roorm file.root:hist1
 
@@ -109,7 +123,7 @@ or:
 
 dir1  dir2  hist2
 
-About roomv:
+### roomv
 
 > roomv file2.root:graph1 file.root
 > rools *.root
@@ -120,7 +134,7 @@ dir1   dir2   graph1 hist1  hist2
 /dir/dir/dir/file2.root :  
 graph2
 
-About roomkdir:
+### roomkdir
 
 > roomkdir file.root:new_dir
 > rools file.root
