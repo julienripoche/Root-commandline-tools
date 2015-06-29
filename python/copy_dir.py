@@ -3,6 +3,7 @@
 """Python adaptation of a root input/output tutorial :
 $ROOTSYS/tutorials/io/copyFiles.C"""
 
+from is_directory import *
 import ROOT
 
 def copy_dir(source):
@@ -14,9 +15,7 @@ def copy_dir(source):
     for key in source.GetListOfKeys():
         classname = key.GetClassName()
         cl = ROOT.gROOT.GetClass(classname)
-        if (not cl):
-            continue
-        if (cl.InheritsFrom(ROOT.TDirectory.Class())):
+        if is_directory(key):
             subdir = source.Get(key.GetName()) # Get the TDirectory...
             adir.cd()
             copy_dir(subdir)

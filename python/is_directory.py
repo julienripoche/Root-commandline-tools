@@ -9,7 +9,4 @@ def is_directory(key):
     inherits from TDirectory"""
     classname = key.GetClassName()
     cl = ROOT.gROOT.GetClass(classname)
-    if (cl.InheritsFrom(ROOT.TDirectory.Class())):
-        return True
-    else:
-        return False
+    return cl.InheritsFrom(ROOT.TDirectory.Class())
