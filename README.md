@@ -81,7 +81,7 @@ dir1  dir2  hist1 hist2
 /dir/dir/dir/file2.root :  
 graph1 graph2
 
-> rools *.root:*
+> rools \*.root:\*
 
 /dir/dir/dir/file.root :  
 hist1 hist2
@@ -97,7 +97,7 @@ graph1 graph2
 
 ### roocp
 
-> roocp file2.root:graph1 file.root
+> roocp file2.root:graph1 file.root  
 > rools *.root
 
 /dir/dir/dir/file.root :  
@@ -118,14 +118,14 @@ dir1  dir2  hist2
 
 or:
 
-> roorm	-f file.root:graph1
+> roorm	-f file.root:graph1  
 > rools	file.root
 
 dir1  dir2  hist2
 
 ### roomv
 
-> roomv file2.root:graph1 file.root
+> roomv file2.root:graph1 file.root  
 > rools *.root
 
 /dir/dir/dir/file.root :  
@@ -136,7 +136,7 @@ graph2
 
 ### roomkdir
 
-> roomkdir file.root:new_dir
+> roomkdir file.root:new_dir  
 > rools file.root
 
 dir1    dir2    hist1   hist2   new_dir
