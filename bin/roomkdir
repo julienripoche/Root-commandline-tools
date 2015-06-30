@@ -9,7 +9,7 @@ import ROOT
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="make TDirectoryFile in a ROOT file")
-parser.add_argument("-p", "--parents", help="make parent directories as needed", action="store_true")
+parser.add_argument("-p", "--parents", help="no error if existing, make parent directories as needed", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')

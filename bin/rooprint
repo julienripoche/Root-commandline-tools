@@ -1,16 +1,15 @@
 #!/usr/bin/python
 
-"""rtrthrth"""
+"""Commandline to print root contents on ps,pdf or png,gif.. files"""
 
 from pattern_to_tuple import *
-from dir_selector import *
-from is_directory import *
+from utils import *
 import argparse
 import os
 import ROOT
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="list ROOT file contents")
+parser = argparse.ArgumentParser(description="print ROOT file contents on ps,pdf or png,gif.. files")
 parser.add_argument("-o", "--output", help="place output in file file.pdf")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \

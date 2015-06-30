@@ -8,7 +8,7 @@ import argparse
 import ROOT
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="commandline to copy an object from a root file to an other")
+parser = argparse.ArgumentParser(description="copy an object from a root file to an other")
 parser.add_argument("source_pattern_list", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
@@ -16,12 +16,12 @@ parser.add_argument("dest_pattern", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
 args = parser.parse_args()
 
-# Create a list of tuples that contain a ROOT file name and a list of path in this file
+# Create a list of tuples that contain a source ROOT file name and a list of path in this file
 source_list = []
 for pattern in args.source_pattern_list:
     source_list.extend(pattern_to_tuple(pattern))
 
-# Create a ROOT file name and a path in this file
+# Create a destination ROOT file name and a path in this file
 dest_list = pattern_to_tuple(args.dest_pattern,regexp=False)
 dest_name,dest_path_list = dest_list[0]
 dest_path = dest_path_list[0]

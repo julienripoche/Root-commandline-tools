@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
-"""Commandline to remove an object from a root file"""
+"""Module which contain a function to remove an object from a root file"""
 
-from chg_dir import *
+from utils import *
 import os
 import ROOT
 
 def roorm_delete(root_file,path):
+    """Remove the object corresponding to the path from a root file"""
     if path != []:
         chg_dir(root_file,path[:-1])
         ROOT.gDirectory.Delete(path[-1]+";*")

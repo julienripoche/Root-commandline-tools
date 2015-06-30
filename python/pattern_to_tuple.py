@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
-"""Create a dictionnary with ROOT file name as key
-and which contains list of paths"""
+"""Module which contain a function to give file/path
+that matches which a pattern"""
 
-from pattern_to_file import *
-from pattern_to_object import *
+from pattern_utils.pattern_to_file import *
+from pattern_utils.pattern_to_object import *
 
 def pattern_to_tuple(pattern,regexp = True):
-    """Create a dictionnary with ROOT file name as key and which
-    contains list of paths"""
+    """Create a list of tuple which contain root file name
+    and path list in this file"""
 
     file_list = []
     pattern_split = pattern.split(":")

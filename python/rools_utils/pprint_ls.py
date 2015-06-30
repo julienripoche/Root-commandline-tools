@@ -10,6 +10,7 @@ from pretty_print import *
 from get_terminal_size import *
 
 def pprint_ls(input_list):
+    """Print list of strings in columns"""
     if len(input_list) == 0:
         return
     (term_width, term_height) =  get_terminal_size()

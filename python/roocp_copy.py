@@ -2,14 +2,14 @@
 
 """Commandline to copy an object from a root file to an other root file"""
 
-from is_directory import *
-from dir_selector import *
+from utils import *
 import ROOT
 
 def copy_dir(source):
     """Python adaptation of a root input/output tutorial :
     $ROOTSYS/tutorials/io/copyFiles.C"""
-    # copy all objects and subdirs of directory source as a subdir of the current directory
+    # copy all objects and subdirs of directory source
+    # as a subdir of the current directory
     savdir = ROOT.gDirectory
     adir = savdir.mkdir(source.GetName())
     adir.cd()
@@ -32,6 +32,7 @@ def copy_dir(source):
     savdir.cd()
 
 def roocp_copy(source_file,source_path,dest_file,dest_path):
+    """Copy an object from a root file to an other root file"""
     if source_path == []:
         key_list = get_key_list(source_file,source_path)
     else:

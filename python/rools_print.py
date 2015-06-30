@@ -1,12 +1,15 @@
 #!/usr/bin/python
 
-"""dgfhdfgdfg"""
+"""Module which contain a function to print key_list informations
+with a rools style"""
 
-from pprint_long_ls import *
-from pprint_ls import *
+from rools_utils.pprint_long_ls import *
+from rools_utils.pprint_ls import *
 import ROOT
 
 def rools_print(key_list,opt_dict):
+    """Print the informations given by key_list with a rools
+    style choosen with opt_dict"""
     if opt_dict['l']:
         pprint_long_ls(key_list)
     else:

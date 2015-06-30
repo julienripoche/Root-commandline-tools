@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Module which contains a function to print a list of TKey in columns"""
+"""Module which contains a function to print a list of TKey properties in columns"""
 
 import ROOT
 from pretty_print import *

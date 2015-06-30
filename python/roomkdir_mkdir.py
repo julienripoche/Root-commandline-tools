@@ -1,11 +1,12 @@
 #!/usr/bin/python
 
-"""Commandline to add a directory in a root file"""
+"""Module which contain a function to add a directory in a root file"""
 
-from chg_dir import *
+from utils import *
 import ROOT
 
 def roomkdir_mkdir(root_file,path):
+    """Add a TDirectoryFile in a root file"""
     # if path == [], an empty file is created
     if path != []:
         chg_dir(root_file,path[:-1])

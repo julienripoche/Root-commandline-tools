@@ -1,12 +1,11 @@
 #!/usr/bin/python
 
 """Module which contains a function to find path of
-object in a file that match with a pattern"""
+object in a file that match with a given pattern"""
 
 import os
 import fnmatch
-from chg_dir import *
-from is_directory import *
+from utils import *
 
 def pattern_to_object(file_name,pattern):
     """Put in a list the paths that match with the pattern"""

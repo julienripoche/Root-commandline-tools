@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""commandline to print some informations about the contents of a root file"""
+"""Commandline to dump root contents to terminal"""
 
 from redirect_escape_characters import *
 
@@ -9,7 +9,7 @@ with stdout_redirected(to=os.devnull), merged_stderr_stdout():
     import ROOT
     from pattern_to_tuple import *
     from rools_print import *
-    from dir_selector import *
+    from utils import *
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
@@ -47,7 +47,7 @@ for file_name, path_list in file_list:
     if key_list != []:
         not_dir_objects_first = True
 
-    # Print with rools style
+    # Print with the rools style
     rools_print(key_list,opt_dict)
 
     first_round_directory = True
@@ -63,7 +63,7 @@ for file_name, path_list in file_list:
         if len(path_list) > 1: # Paths of file and object
             print("{0} :".format("/".join(path)))
 
-        # Print with rools style
+        # Print with the rools style
         rools_print(key_list,opt_dict)
             
     root_file.Close()

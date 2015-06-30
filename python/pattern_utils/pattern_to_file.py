@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """Module which contains a function to find path
-of file that match with a pattern"""
+of file that match with a given pattern"""
 
 import os
 import fnmatch
