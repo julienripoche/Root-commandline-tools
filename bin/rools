@@ -2,13 +2,14 @@
 
 """commandline to print some informations about the contents of a root file"""
 
-import os
-import argparse
-import ROOT
-from pattern_to_tuple import *
-from rools_print import *
-from dir_selector import *
+from redirect_escape_characters import *
 
+with stdout_redirected(to=os.devnull), merged_stderr_stdout():
+    import argparse
+    import ROOT
+    from pattern_to_tuple import *
+    from rools_print import *
+    from dir_selector import *
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
