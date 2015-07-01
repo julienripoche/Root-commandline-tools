@@ -1,0 +1,17 @@
+[?1034hTrying:
+    pattern_to_file("*init*.py")
+Expecting:
+    ['/afs/cern.ch/user/j/jripoche/root/python/pattern_utils/__init__.py']
+ok
+Trying:
+    pattern_to_file("../*pattern*.py")
+Expecting:
+    ['/afs/cern.ch/user/j/jripoche/root/python/pattern_to_tuple.py']
+ok
+1 items had no tests:
+    __main__
+1 items passed all tests:
+   2 tests in __main__.pattern_to_file
+2 tests in 2 items.
+2 passed and 0 failed.
+Test passed.

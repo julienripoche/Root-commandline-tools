@@ -7,7 +7,14 @@ import os
 import fnmatch
 
 def pattern_to_file(pattern):
-    """Put in a list the names of files that match with the pattern"""
+    """Put in a list the names of files that match with the pattern
+
+    >>> pattern_to_file("*init*.py")
+    ['/afs/cern.ch/user/j/jripoche/root/python/pattern_utils/__init__.py']
+
+    >>> pattern_to_file("../*pattern*.py")
+    ['/afs/cern.ch/user/j/jripoche/root/python/pattern_to_tuple.py']
+    """
 
     # Treatment of the pattern to have something comparable to an absolute path
     pattern_norm = os.path.abspath(os.path.expanduser(os.path.normpath(pattern)))
@@ -39,3 +46,7 @@ def pattern_to_file(pattern):
         print("rools: cannot access {0}: No such file or directory".format(pattern))
 
     return file_name_list
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
