@@ -15,8 +15,6 @@ def copy_dir(source):
     adir.cd()
     # loop on all entries of this directory
     for key in source.GetListOfKeys():
-        classname = key.GetClassName()
-        cl = ROOT.gROOT.GetClass(classname)
         if is_directory(key):
             subdir = source.Get(key.GetName()) # Get the TDirectory...
             adir.cd()
@@ -39,11 +37,7 @@ def roocp_copy(source_file,source_path,dest_file,dest_path):
         key_list = [get_key(source_file,source_path)]
 
     for key in key_list:
-        classname = key.GetClassName()
-        cl = ROOT.gROOT.GetClass(classname)
-        if (not cl):
-            pass
-        elif (cl.InheritsFrom(ROOT.TDirectory.Class())):
+        if is_directory(key):
             chg_dir(source_file,source_path[:-1])
             subdir = ROOT.gDirectory.Get(key.GetName()) # Get the TDirectory ...
             chg_dir(dest_file,dest_path)

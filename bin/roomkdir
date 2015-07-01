@@ -28,9 +28,5 @@ del opt_dict["pattern_list"]
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name,"update")
     for path in path_list:
-        if not opt_dict["parents"]:
-            roomkdir_mkdir(root_file,path)
+        roomkdir_mkdir(root_file,path,opt_dict)
     root_file.Close()
-
-if opt_dict["parents"]:
-    print("Parent option still not implemented")
