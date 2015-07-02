@@ -11,7 +11,10 @@ def copy_dir(source):
     # copy all objects and subdirs of directory source
     # as a subdir of the current directory
     savdir = ROOT.gDirectory
-    adir = savdir.mkdir(source.GetName())
+    if not ROOT.gDirectory.GetListOfKeys().Contains(source.GetName()):
+        adir = savdir.mkdir(source.GetName())
+    else :
+        adir = ROOT.gDirectory.Get(source.GetName())
     adir.cd()
     # loop on all entries of this directory
     for key in source.GetListOfKeys():
@@ -24,6 +27,8 @@ def copy_dir(source):
             source.cd()
             obj = key.ReadObj()
             adir.cd()
+            if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
+                ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()
   
     adir.SaveSelf(ROOT.kTRUE)
@@ -47,4 +52,6 @@ def roocp_copy(source_file,source_path,dest_file,dest_path):
             chg_dir(source_file,source_path[:-1])
             obj = key.ReadObj()
             chg_dir(dest_file,dest_path)
+            if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
+                ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()
