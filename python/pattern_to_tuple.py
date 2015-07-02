@@ -62,7 +62,7 @@ def pattern_to_tuple(pattern,regexp = True):
             if regexp:
                 path_list = pattern_to_object(file_name,pattern_split[1])
             else:
-                path_list = [n for n in pattern_split[1].split("/") if n != ""]
+                path_list = [[n for n in pattern_split[1].split("/") if n != ""]]
         else:
             # This is the entire ROOT file
             path_list = [[]]
