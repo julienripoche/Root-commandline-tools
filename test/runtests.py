@@ -108,17 +108,6 @@ if os.path.isfile("target.root"):
     os.system("rm target.root")
 #########################################################################
 
-############################# PATTERN TESTS #############################
-print "Test PatternToFile",
-os.system("cd ../python/pattern_utils && python pattern_to_file.py -v > ../../test/PatternToFile.out && cd ../../test/")
-test_nb += 1
-if filecmp.cmp("PatternToFile.out","PatternToFile.ref"):
-    print "SUCCESS"
-else:
-    print "FAILURE"
-    failure_nb += 1
-#########################################################################
-
 ################################ THE END ################################
 print("\nResults :")
 print("{0} failure(s) on {1} test(s)".format(failure_nb,test_nb))
