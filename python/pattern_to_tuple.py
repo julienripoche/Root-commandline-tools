@@ -12,7 +12,7 @@ def pattern_to_object(file_name,pattern):
     """Put in a list paths of objects in the root file
     corresponding to file_name that match with the pattern"""
 
-    pattern_split = os.path.normpath(pattern).split("/")
+    pattern_split = [n for n in pattern.split("/") if n != ""]
 
     # Full ROOT file, unnecessary but if not then opening of root_file unnecessary...
     if pattern_split == []:
@@ -62,7 +62,7 @@ def pattern_to_tuple(pattern,regexp = True):
             if regexp:
                 path_list = pattern_to_object(file_name,pattern_split[1])
             else:
-                path_list = [os.path.normpath(pattern_split[1]).split("/")]
+                path_list = [n for n in pattern_split[1].split("/") if n != ""]
         else:
             # This is the entire ROOT file
             path_list = [[]]
