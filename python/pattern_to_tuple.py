@@ -23,12 +23,13 @@ def pattern_to_object(file_name,pattern):
     for pattern_piece in pattern_split:
         new_path_list = []
         for path in path_list:
-            chg_dir(root_file,path)
-            for key in ROOT.gDirectory.GetListOfKeys():
-                if fnmatch.fnmatch(key.GetName(),pattern_piece):
-                    new_path = [n for n in path]
-                    new_path.append(key.GetName())
-                    new_path_list.append(new_path)
+            if is_directory((root_file,path)):
+                chg_dir(root_file,path)
+                for key in ROOT.gDirectory.GetListOfKeys():
+                    if fnmatch.fnmatch(key.GetName(),pattern_piece):
+                        new_path = [n for n in path]
+                        new_path.append(key.GetName())
+                        new_path_list.append(new_path)
         path_list = new_path_list
 
     if path_list == []:

@@ -14,6 +14,12 @@ def chg_dir(root_file,path):
 def is_directory(key):
     """Function to test if the object pointed by the key
     inherits from TDirectory"""
+    # If function received (root_file,path)
+    if type(key) != ROOT.TKey:
+        if key[1] == []:
+            return True
+        else:
+            key = get_key(key[0],key[1])
     classname = key.GetClassName()
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TDirectory.Class())
