@@ -78,5 +78,5 @@ for file_name, path_list in file_list:
     root_file.Close()
 
 # Ending
-if opt_dict["output"] and opt_dict["extension"] in ['ps','pdf']:
+if opt_dict["output"]:
     canvas.Print(output_name+"]",obj_title)
