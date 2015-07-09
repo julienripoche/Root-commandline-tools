@@ -27,19 +27,6 @@ del opt_dict["pattern_list"]
 # Loop on the ROOT files
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name,"update")
-
     for path in path_list:
-        do_remove = True
-        if not opt_dict['force']:
-            if path != []:
-                answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
-                                   .format("/".join(path),file_name))
-            else:
-                answer = raw_input("Are you sure to remove '{0}' ? (y/n) : " \
-                                   .format(file_name))
-            if answer.lower() != 'y':
-                do_remove = False
-        if do_remove:
-            roorm_delete(root_file,path)
-
+        roorm_delete(root_file,path,opt_dict)
     root_file.Close()

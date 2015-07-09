@@ -36,6 +36,7 @@ for file_name, path_list in file_list:
     obj_list,dir_list = dir_selector(root_file,path_list)
     key_list = [get_key(root_file,path) for path in obj_list]
     key_list.sort()
+    dir_list.sort()
 
     # Heading
     if len(file_list) > 1 and not first_round_file:

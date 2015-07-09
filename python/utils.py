@@ -11,6 +11,11 @@ def chg_dir(root_file,path):
     for dir_name in path:
         ROOT.gDirectory.Get(dir_name).cd()
 
+def get_key(root_file,path):
+    """Give the TKey of the corresponding object"""
+    chg_dir(root_file,path[:-1])
+    return ROOT.gDirectory.GetKey(path[-1])
+
 def is_directory(key):
     """Function to test if the object pointed by the key
     inherits from TDirectory"""
@@ -24,15 +29,13 @@ def is_directory(key):
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TDirectory.Class())
 
-def get_key(root_file,path):
-    """Give the TKey of the corresponding object"""
-    chg_dir(root_file,path[:-1])
-    return ROOT.gDirectory.GetKey(path[-1])
-
 def get_key_list(root_file,path):
     """Give the list of TKey of the corresponding directory"""
-    chg_dir(root_file,path)
-    return ROOT.gDirectory.GetListOfKeys()
+    if is_directory((root_file,path)):
+        chg_dir(root_file,path)
+        return ROOT.gDirectory.GetListOfKeys()
+    else:
+        return [get_key(root_file,path)]
 
 def dir_selector(root_file,path_list):
     """Separate directory and non directory object"""

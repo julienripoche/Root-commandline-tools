@@ -35,16 +35,13 @@ del opt_dict["dest_pattern"]
 # Loop on the root files
 dest_file = ROOT.TFile.Open(dest_name,"update")
 for source_name, path_list in source_list:
-
     if source_name != dest_name:
         source_file = ROOT.TFile.Open(source_name,"update")
     else:
         source_file = dest_file
-
     for source_path in path_list:
         roocp_copy(source_file,source_path,dest_file,dest_path)
-        roorm_delete(source_file,source_path)
-
+        roorm_delete(source_file,source_path,{'force':True})
     if source_name != dest_name:
         source_file.Close()
 dest_file.Close()
