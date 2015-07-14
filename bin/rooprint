@@ -63,17 +63,31 @@ for file_name, path_list in file_list:
 
     # Loop
     for key in key_list:
-        if not opt_dict["output"]:
-            output_name = key.GetName() + "." +opt_dict["extension"]
-            if opt_dict["directory"]:
-                output_name = opt_dict["directory"] + "/" + output_name
-        obj = key.ReadObj()
-        obj.Draw()
-        if opt_dict["output"] or opt_dict["extension"] == 'pdf':
-            obj_title = "Title:"+key.GetClassName()+" : "+key.GetTitle()
-            canvas.Print(output_name,obj_title)
+        if is_tree(key):
+            obj = key.ReadObj()
+            for branch in obj.GetListOfBranches():
+                if not opt_dict["output"]:
+                    output_name = branch.GetName() + "." +opt_dict["extension"]
+                    if opt_dict["directory"]:
+                        output_name = opt_dict["directory"] + "/" + output_name
+                obj.Draw(branch.GetName())
+                if opt_dict["output"] or opt_dict["extension"] == 'pdf':
+                    obj_title = "Title:"+branch.GetName()+" : "+branch.GetTitle()
+                    canvas.Print(output_name,obj_title)
+                else:
+                    canvas.Print(output_name,opt_dict["extension"])
         else:
-            canvas.Print(output_name,opt_dict["extension"])
+            if not opt_dict["output"]:
+                output_name = key.GetName() + "." +opt_dict["extension"]
+                if opt_dict["directory"]:
+                    output_name = opt_dict["directory"] + "/" + output_name
+            obj = key.ReadObj()
+            obj.Draw()
+            if opt_dict["output"] or opt_dict["extension"] == 'pdf':
+                obj_title = "Title:"+key.GetClassName()+" : "+key.GetTitle()
+                canvas.Print(output_name,obj_title)
+            else:
+                canvas.Print(output_name,opt_dict["extension"])
 
     root_file.Close()
 
