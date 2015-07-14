@@ -13,10 +13,10 @@ def roorm_delete(root_file,path,opt_dict):
     if not opt_dict['force']:
         if path != []:
             answer = raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
-                                   .format("/".join(path),file_name))
+                                   .format("/".join(path),root_file.GetName()))
         else:
             answer = raw_input("Are you sure to remove '{0}' ? (y/n) : " \
-                                   .format(file_name))
+                                   .format(root_file.GetName()))
         if answer.lower() != 'y':
             do_remove = False
     if do_remove:
