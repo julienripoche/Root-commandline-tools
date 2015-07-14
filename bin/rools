@@ -14,6 +14,7 @@ with stdout_redirected(to=os.devnull), merged_stderr_stdout():
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
 parser.add_argument("-l", help="use a long listing format", action="store_true")
+parser.add_argument("-t", help="tree recursive print", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
@@ -33,7 +34,7 @@ first_round_file = True
 not_dir_objects_first = False
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name)
-    obj_list,dir_list = dir_selector(root_file,path_list)
+    obj_list,dir_list = type_selector(root_file,path_list)
     key_list = [get_key(root_file,path) for path in obj_list]
     key_list.sort()
     dir_list.sort()

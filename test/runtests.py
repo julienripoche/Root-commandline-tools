@@ -20,6 +20,13 @@ def testCommand(testName,command,refFileName):
         global failure_nb
         failure_nb += 1
 
+
+############################## PATTERN TESTS ############################
+testCommand("SimplePattern", "./test_pattern_to_tuple.py test.root", "SimplePattern.ref")
+testCommand("SimplePattern2", "./test_pattern_to_tuple.py test.root:tof", "SimplePattern2.ref")
+testCommand("SimplePattern3", "./test_pattern_to_tuple.py test.root:*", "SimplePattern3.ref")
+#########################################################################
+
 ############################## ROOLS TESTS ##############################
 testCommand("SimpleRools", "rools test.root", "SimpleRools.ref")
 testCommand("SimpleRools2", "rools test.root:*", "SimpleRools2.ref")

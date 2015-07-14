@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
-"""Module which contain a function to give file/path
-that matches which a pattern"""
+"""Module which contain functions to give file name or
+path in root file that matches which a pattern"""
 
 import glob
 import os
@@ -12,9 +12,10 @@ def pattern_to_object(file_name,pattern):
     """Put in a list paths of objects in the root file
     corresponding to file_name that match with the pattern"""
 
+    # Spliting of the main pattern
     pattern_split = [n for n in pattern.split("/") if n != ""]
 
-    # Full ROOT file, unnecessary but if not then opening of root_file unnecessary...
+    # Full ROOT file, unnecessary but if not then opening of root_file for nothing...
     if pattern_split == []:
         return [[]]
 
@@ -23,13 +24,20 @@ def pattern_to_object(file_name,pattern):
     for pattern_piece in pattern_split:
         new_path_list = []
         for path in path_list:
-            if is_directory((root_file,path)):
+            # Security to stay in top level of trees
+            if is_tree((root_file,path[:-1])):
+                continue
+            elif is_directory((root_file,path)):
                 chg_dir(root_file,path)
-                for key in ROOT.gDirectory.GetListOfKeys():
-                    if fnmatch.fnmatch(key.GetName(),pattern_piece):
-                        new_path = [n for n in path]
-                        new_path.append(key.GetName())
-                        new_path_list.append(new_path)
+                new_path_list.extend([path + [key.GetName()]\
+                                      for key in ROOT.gDirectory.GetListOfKeys()\
+                                      if fnmatch.fnmatch(key.GetName(),pattern_piece)])
+            elif is_tree((root_file,path)):
+                chg_dir(root_file,path[:-1])
+                T = ROOT.gDirectory.Get(path[-1])
+                new_path_list.extend([path + [branch.GetName()]\
+                                      for branch in T.GetListOfBranches()\
+                                      if fnmatch.fnmatch(branch.GetName(),pattern_piece)])
         path_list = new_path_list
 
     if path_list == []:
