@@ -13,11 +13,11 @@ with stdout_redirected(to=os.devnull), merged_stderr_stdout():
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="list ROOT file contents")
-parser.add_argument("-l", help="use a long listing format", action="store_true")
-parser.add_argument("-t", help="tree recursive print", action="store_true")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
+parser.add_argument("-l", help="use a long listing format", action="store_true")
+parser.add_argument("-t", help="tree recursive print (with -l option)", action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a ROOT file name and a list of path in this file

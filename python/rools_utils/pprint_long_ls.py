@@ -6,8 +6,7 @@ import ROOT
 from pretty_print import *
 from utils import *
 
-# Templates for columns print
-template = ansi_bold("{0:{class_width}}")+"{1:{time_width}}{2:{name_width}}{3:{title_width}}"
+# Template for columns print
 tree_template = "{0:{name_width}}"+"{1:{title_width}}{2:{memory_width}}"
 
 def recursif(tree,indentLevel):
@@ -52,6 +51,9 @@ def time_preparator(time):
 def pprint_long_ls(key_list,opt_dict):
     """Function to print a list of Tkey in columns,
     classname, datetime, name and title"""
+
+    # Template for columns print
+    template = ansi_bold("{0:{class_width}}")+"{1:{time_width}}{2:{name_width}}{3:{title_width}}"
 
     # Width informations
     if len(key_list) > 0:
