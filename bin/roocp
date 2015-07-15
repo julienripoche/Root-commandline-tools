@@ -14,6 +14,8 @@ parser.add_argument("source_pattern_list", \
                     nargs='+')
 parser.add_argument("dest_pattern", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
+parser.add_argument("-c","--compress", type=int, help="change the compression settings")
+parser.add_argument("-r","--recreate", help="recreate the destination file", action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a source ROOT file name and a list of path in this file
@@ -31,8 +33,25 @@ opt_dict = vars(args)
 del opt_dict["source_pattern_list"]
 del opt_dict["dest_pattern"]
 
-# Loop on the root files
-dest_file = ROOT.TFile.Open(dest_name,"update")
+# Check if the file already exists
+if opt_dict["compress"]:
+    if opt_dict["recreate"] or not os.path.exists(dest_name):
+        change_compression = True
+    else:
+        change_compression = False
+
+# Initialize destination file
+if opt_dict["recreate"]:
+    dest_file = ROOT.TFile.Open(dest_name,"recreate")
+else:
+    dest_file = ROOT.TFile.Open(dest_name,"update")
+
+# Change the compression settings
+if opt_dict["compress"]:
+    if change_compression:
+        dest_file.SetCompressionSettings(opt_dict["compress"])
+
+# Loop on the root files   
 for source_name, path_list in source_list:
     if source_name != dest_name:
         source_file = ROOT.TFile.Open(source_name)
