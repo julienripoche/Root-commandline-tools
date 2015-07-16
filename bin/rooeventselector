@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to ..."""
+"""Commandline to copy subsets of Trees from source files to new Trees on a destination file"""
 
 from pattern_to_tuple import *
 from rooeventselector_select import *
@@ -8,16 +8,16 @@ import argparse
 import ROOT
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="...")
+parser = argparse.ArgumentParser(description="Copy subsets of Trees from source files to new Trees on a destination file")
 parser.add_argument("source_pattern_list", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
 parser.add_argument("dest_pattern", \
                     help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
-parser.add_argument("-c","--compress", type=int, help="change the compression settings")
+parser.add_argument("-c","--compress", type=int, help="change the compression settings of the destination file")
 parser.add_argument("-r","--recreate", help="recreate the destination file", action="store_true")
-parser.add_argument("-f","--first", type=int, help="...")
-parser.add_argument("-l","--last", type=int, help="...")
+parser.add_argument("-f","--first", type=int, help="first event to copy")
+parser.add_argument("-l","--last", type=int, help="last event to copy")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a source ROOT file name and a list of path in this file
