@@ -4,6 +4,7 @@
 
 from pattern_to_tuple import *
 from rooeventselector_select import *
+from utils import *
 import argparse
 import ROOT
 
@@ -60,7 +61,8 @@ for source_name, path_list in source_list:
     else:
         source_file = dest_file
     for source_path in path_list:
-        rooeventselector_select(source_file,source_path,dest_file,dest_path,opt_dict)
+        if is_tree((source_file,source_path)):
+            rooeventselector_select(source_file,source_path,dest_file,dest_path,opt_dict)
     if source_name != dest_name:
         source_file.Close()
 dest_file.Close()
