@@ -17,7 +17,7 @@ def treeSubsetCopier(source_file,source_path,dest_file,dest_path,opt_dict):
     chg_dir(dest_file,dest_path) # For the small tree not to be memory-resident
     smalltree = bigtree.CloneTree(0)
     first_event = opt_dict["first"] if opt_dict["first"] != None else 0
-    last_event = opt_dict["last"] if opt_dict["last"] != None else nentries - 1
+    last_event = opt_dict["last"] if opt_dict["last"] != None and opt_dict["last"] < nentries-1 else nentries-1
     for i in range(nentries):
         if i >= first_event and i <= last_event:
             bigtree.GetEntry(i)
