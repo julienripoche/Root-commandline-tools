@@ -1,28 +1,25 @@
 #!/usr/bin/python
 
-"""Commandline to move an object from a root file to an other root file"""
+"""Commandline to move objects
+from ROOT files to an other"""
 
-from pattern_to_tuple import *
-from roocp_copy import *
-from roorm_delete import *
-import argparse
-import ROOT
+from cmdLineUtils import *
+
+##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="move an object from a root file to an other")
+parser = argparse.ArgumentParser(description="Move objects from ROOT files to an other")
 parser.add_argument("source_pattern_list", \
-                    help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
+                    help="file path and object path in the file : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
 parser.add_argument("dest_pattern", \
-                    help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object")
-parser.add_argument("-c","--compress", type=int, help="change the compression settings")
+                    help="file path and object path in the file : [file_path/]file[.root]:[object_path/]object")
+parser.add_argument("-c","--compress", type=int, help="change the compression settings of the destination file")
 parser.add_argument("-r","--recreate", help="recreate the destination file", action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a source ROOT file name and a list of path in this file
-source_list = []
-for pattern in args.source_pattern_list:
-    source_list.extend(pattern_to_tuple(pattern))
+source_list = [tup for pattern in args.source_pattern_list for tup in pattern_to_tuple(pattern)]
 
 # Create a destination ROOT file name and a path in this file
 dest_list = pattern_to_tuple(args.dest_pattern,regexp=False)
@@ -34,23 +31,9 @@ opt_dict = vars(args)
 del opt_dict["source_pattern_list"]
 del opt_dict["dest_pattern"]
 
-# Check if the file already exists
-if opt_dict["compress"]:
-    if opt_dict["recreate"] or not os.path.exists(dest_name):
-        change_compression = True
-    else:
-        change_compression = False
-
-# Initialize destination file
-if opt_dict["recreate"]:
-    dest_file = ROOT.TFile.Open(dest_name,"recreate")
-else:
-    dest_file = ROOT.TFile.Open(dest_name,"update")
-
-# Change the compression settings
-if opt_dict["compress"]:
-    if change_compression:
-        dest_file.SetCompressionSettings(opt_dict["compress"])
+# Creation of destination file (changing of the compression settings)
+dest_file = ROOT.TFile.Open(dest_name,"recreate") if opt_dict["recreate"] else ROOT.TFile.Open(dest_name,"update")
+if opt_dict["compress"]: dest_file.SetCompressionSettings(opt_dict["compress"])
 
 # Loop on the root files
 for source_name, path_list in source_list:
@@ -59,8 +42,8 @@ for source_name, path_list in source_list:
     else:
         source_file = dest_file
     for source_path in path_list:
-        roocp_copy(source_file,source_path,dest_file,dest_path)
-        roorm_delete(source_file,source_path,{'force':True})
+        copier(source_file,source_path,dest_file,dest_path)
+        deleter(source_file,source_path,{'force':True})
     if source_name != dest_name:
         source_file.Close()
 dest_file.Close()

@@ -1,24 +1,22 @@
 #!/usr/bin/python
 
-"""Commandline to remove an object from a root file"""
+"""Commandline to remove
+objects from ROOT files"""
 
-from pattern_to_tuple import *
-from roorm_delete import *
-import argparse
-import ROOT
+from cmdLineUtils import *
+
+##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="remove objects from a ROOT file")
-parser.add_argument("-f", "--force", help="force the removing", action="store_true")
+parser = argparse.ArgumentParser(description="Remove objects from ROOT files")
 parser.add_argument("pattern_list", \
-                    help="file path and object path in the file with the syntax : [file_path/]file[.root]:[object_path/]object", \
+                    help="file path and object path in the file : [file_path/]file[.root]:[object_path/]object", \
                     nargs='+')
+parser.add_argument("-f", "--force", help="force the removing", action="store_true")
 args = parser.parse_args()
 
-# Create a list of tuples that contain a ROOT file name and a list of path in this file
-file_list = []
-for pattern in args.pattern_list:
-    file_list.extend(pattern_to_tuple(pattern))
+# Create a list of tuples that contain a source ROOT file name and a list of path in this file
+file_list = [tup for pattern in args.pattern_list for tup in pattern_to_tuple(pattern)]
 
 # Create a dictionnary with options
 opt_dict = vars(args)
@@ -28,5 +26,5 @@ del opt_dict["pattern_list"]
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name,"update")
     for path in path_list:
-        roorm_delete(root_file,path,opt_dict)
+        deleter(root_file,path,opt_dict)
     root_file.Close()

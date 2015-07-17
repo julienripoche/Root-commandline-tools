@@ -5,7 +5,7 @@
 from redirect_escape_characters import *
 
 with stdout_redirected(to=os.devnull), merged_stderr_stdout():
-    from pattern_to_tuple import *
+    from cmdLineUtils import pattern_to_tuple
     import argparse
 
 # Collect arguments with the module argparse

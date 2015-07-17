@@ -1,24 +1,48 @@
 #!/usr/bin/python
 
-"""Commandline to add a directory in a root file"""
+"""Commandline to add directories in ROOT files"""
 
-from pattern_to_tuple import *
-from roomkdir_mkdir import *
-import argparse
-import ROOT
+from cmdLineUtils import *
+
+# Definition of the function to add a directory in a ROOT file
+def createDirectory(root_file,path):
+    """
+    Add a directory named 'path[-1]'
+    in (source_file,source_path[:-1])
+    """
+    chg_dir(root_file,path[:-1])
+    ROOT.gDirectory.mkdir(path[-1])
+
+# Definition of the function to recursively add directories in a ROOT file
+def createDirectories(root_file,path,opt_dict):
+    """
+    Same behaviour as createDirectory but allows the possibility
+    to build an entire path recursively with opt_dict["parents"]
+    """
+    if not opt_dict["parents"]:
+        # if path == [], an empty file is created
+        if path != []:
+            createDirectory(root_file,path)
+    else:
+        for i in range(len(path)):
+            current_path = path[:i+1]
+            name_list = [key.GetName() for key in \
+                         get_key_list(root_file,current_path[:-1])]
+            if not current_path[-1] in name_list:
+                createDirectory(root_file,current_path)
+
+##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="make TDirectoryFile in a ROOT file")
-parser.add_argument("-p", "--parents", help="no error if existing, make parent directories as needed", action="store_true")
+parser = argparse.ArgumentParser(description="Add directories in a ROOT files")
 parser.add_argument("pattern_list", \
-                    help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
+                    help="file path and object path in the ROOT file : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
+parser.add_argument("-p", "--parents", help="no error if existing, make parent directories as needed", action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a ROOT file name and a list of path in this file
-file_list = []
-for pattern in args.pattern_list:
-    file_list.extend(pattern_to_tuple(pattern,regexp=False))
+file_list = [tup for pattern in args.pattern_list for tup in pattern_to_tuple(pattern,regexp=False)]
 
 # Create a dictionnary with options
 opt_dict = vars(args)
@@ -28,5 +52,5 @@ del opt_dict["pattern_list"]
 for file_name, path_list in file_list:
     root_file = ROOT.TFile.Open(file_name,"update")
     for path in path_list:
-        roomkdir_mkdir(root_file,path,opt_dict)
+        createDirectories(root_file,path,opt_dict)
     root_file.Close()

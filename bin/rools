@@ -1,29 +1,153 @@
 #!/usr/bin/python
 
-"""Commandline to dump root contents to terminal"""
+"""Commandline to dump ROOT files contents to terminal"""
 
-from redirect_escape_characters import *
+from cmdLineUtils import *
 
-with stdout_redirected(to=os.devnull), merged_stderr_stdout():
-    import argparse
-    import ROOT
-    from pattern_to_tuple import *
-    from rools_print import *
-    from utils import *
+def ansi_bold(string):
+    """Make the string bold"""
+    if sys.stdout.isatty(): # if the output is the terminal
+        ansi_bold = "\x1B[1m"
+        ansi_end = "\x1B[0m"
+        return ansi_bold+string+ansi_end
+    else:
+        return string
+
+def ansi_blue(string):
+    """Make the string blue"""
+    if sys.stdout.isatty(): # if the output is the terminal
+        ansi_blue = "\x1B[34m"
+        ansi_end = "\x1B[0m"
+        return ansi_blue+string+ansi_end
+    else:
+        return string
+
+# Template for columns print
+tree_template = "{0:{name_width}}"+"{1:{title_width}}{2:{memory_width}}"
+
+def recursifTreePrinter(tree,indentLevel):
+    # Width informations
+    if len(tree.GetListOfBranches()) > 0:
+        max_name = max([len(branch.GetName()) for branch in tree.GetListOfBranches()])
+        max_title = max([len(branch.GetTitle()) for branch in tree.GetListOfBranches()])
+        #max_memory = max([len(str(branch.GetTotBytes())) for branch in tree.GetListOfBranches()])
+        dic = {"name_width":max_name+2,"title_width":max_title+4,"memory_width":1}
+
+    # Print loop
+    for branch in tree.GetListOfBranches():
+        # Data
+        rec = [branch.GetName(), \
+               "\""+branch.GetTitle()+"\"", \
+               str(branch.GetTotBytes())]
+         # Print
+        print "  "*indentLevel + tree_template.format(*rec,**dic)
+        # if indentLevel < opt_dict["deeper_level"]: to keep in mind
+        recursifTreePrinter(branch,indentLevel+1)
+
+#def pprint_tree_ls(key_list):
+#    """Function to print contents of trees"""
+#    for key in key_list:
+#        if is_tree(key):
+#            tree = key.ReadObj()
+#            rec = [tree.GetName(), \
+#               "\""+tree.GetTitle()+"\"", \
+#               str(tree.GetTotBytes())]
+#            dic = {"name_width":len(tree.GetName())+2,"title_width":len(tree.GetTitle())+4,"memory_width":1}
+#            print tree_template.format(*rec,**dic)
+#            recursif(tree,1)
+
+def time_preparator(time):
+    """ Function to be sure of the format of time
+    (174512 for 17h 45m 12s and 094023 for 09h 40m 23s)"""
+    time = str(time)
+    time = '000000'+time
+    time = time[len(time)-6:]
+    return time
+
+def pprint_long_ls(key_list,opt_dict):
+    """Function to print a list of Tkey in columns,
+    classname, datetime, name and title"""
+
+    # Template for columns print
+    template = ansi_bold("{0:{class_width}}")+"{1:{time_width}}{2:{name_width}}{3:{title_width}}"
+
+    # Width informations
+    if len(key_list) > 0:
+        max_class = max([len(key.GetClassName()) for key in key_list])
+        max_time = 12
+        max_name = max([len(key.GetName()) for key in key_list])
+        #max_title = max([len(key.GetTitle()) for key in key_list])
+        dic = {"class_width":max_class+2,"time_width":max_time+2,"name_width":max_name+2,"title_width":1}
+
+    date =ROOT.Long(0)  
+    month={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
+    for key in key_list:
+        time =ROOT.Long(0)
+        key.GetDatime().GetDateTime(key.GetDatime().Get(),date,time)
+        time = time_preparator(time)
+        rec = [key.GetClassName(), \
+               month[int(str(date)[4:6])]+" " +str(date)[6:]+" "+time[:2]+":"+time[2:4], \
+               key.GetName(), \
+               "\""+key.GetTitle()+"\""]
+        print template.format(*rec,**dic)
+        if opt_dict['t'] and is_tree(key):
+            tree = key.ReadObj()
+            recursifTreePrinter(tree,1)
+
+def pprint_ls(input_list):
+    """Print list of strings in columns"""
+    # This code is adaptated from the pprint_list function here : http://stackoverflow.com/questions/25026556/output-list-like-ls
+    # Thanks hawkjo !!
+    if len(input_list) == 0:
+        return
+    (term_width, term_height) =  get_terminal_size()
+    min_chars_between = 2
+    min_element_width = min( len(x) for x in input_list ) + min_chars_between
+    max_element_width = max( len(x) for x in input_list ) + min_chars_between
+    if max_element_width >= term_width:
+        ncol = 1
+        col_widths = [1]
+    else:
+        # Start with max possible number of columns and reduce until it fits
+        ncol = min( len(input_list), term_width / min_element_width  )
+        while True:
+            col_widths = [ max( len(x) + min_chars_between \
+                                for j, x in enumerate( input_list ) if j % ncol == i ) \
+                                for i in range(ncol) ]
+            if sum( col_widths ) <= term_width: break
+            else: ncol -= 1
+    for i, x in enumerate(input_list):
+        if i != len(input_list)-1:
+            sys.stdout.write(x.ljust(col_widths[i%ncol]))
+        else:
+            # Don't add spaces after the last print
+            sys.stdout.write(x)
+        if i == len(input_list) - 1 or (i+1) % ncol == 0:
+            sys.stdout.write('\n')
+
+def rools_print(key_list,opt_dict):
+    """Print the informations given by key_list with a rools
+    style choosen with opt_dict"""
+    if opt_dict['l']:
+        pprint_long_ls(key_list,opt_dict)
+    else:
+        # Don't forget color and bold, make a different function
+        name_list = [key.GetName() for key in key_list]
+        pprint_ls(name_list)
+
+##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="list ROOT file contents")
+parser = argparse.ArgumentParser(description="Dump ROOT files contents to terminal")
 parser.add_argument("pattern_list", \
-                    help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
+                    help="file path and object path in the file : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
 parser.add_argument("-l", help="use a long listing format", action="store_true")
 parser.add_argument("-t", help="tree recursive print (with -l option)", action="store_true")
 args = parser.parse_args()
 
-# Create a list of tuples that contain a ROOT file name and a list of path in this file
-file_list = []
-for pattern in args.pattern_list:
-    file_list.extend(pattern_to_tuple(pattern))
+# Create a list of tuples that contain a source ROOT file name and a list of path in this file
+file_list = [tup for pattern in args.pattern_list for tup in pattern_to_tuple(pattern)]
 
 # Create a dictionnary with options
 opt_dict = vars(args)

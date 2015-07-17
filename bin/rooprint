@@ -1,27 +1,23 @@
 #!/usr/bin/python
 
-"""Commandline to print root contents on ps,pdf or png,gif.. files"""
+"""Commandline to print ROOT files contents on ps,pdf or png,gif.. files"""
 
-from pattern_to_tuple import *
-from utils import *
-import argparse
-import os
-import ROOT
+from cmdLineUtils import *
+
+##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="print ROOT file contents on ps,pdf or png,gif.. files")
-parser.add_argument("-d", "--directory", help="put files in a subdirectory named 'directory'")
-parser.add_argument("-o", "--output", help="merge files in a file named 'output' (only for ps and pdf)")
-parser.add_argument("-e", "--extension", help="extension of the output (ex: pdf, png)")
+parser = argparse.ArgumentParser(description="Print ROOT files contents on ps,pdf or png,gif.. files")
 parser.add_argument("pattern_list", \
                     help="file path and object path in the ROOT file with the syntax : [file_path/]file.root:[object_path/]object", \
                     nargs='+')
+parser.add_argument("-d", "--directory", help="put output files in a subdirectory named 'directory'")
+parser.add_argument("-m", "--merge", help="merge files in a file named 'merge' (only for ps and pdf)")
+parser.add_argument("-e", "--extension", help="extension of the output (ex: pdf, png)")
 args = parser.parse_args()
 
-# Create a list of tuples that contain a ROOT file name and a list of path in this file
-file_list = []
-for pattern in args.pattern_list:
-    file_list.extend(pattern_to_tuple(pattern))
+# Create a list of tuples that contain a source ROOT file name and a list of path in this file
+file_list = [tup for pattern in args.pattern_list for tup in pattern_to_tuple(pattern)]
 
 # Create a dictionnary with options
 opt_dict = vars(args)
@@ -38,9 +34,9 @@ if not opt_dict["extension"]:
 if opt_dict["directory"]:
     if not os.path.isdir(os.path.join(os.getcwd(),opt_dict["directory"])):
         os.system("mkdir {0}".format(opt_dict["directory"]))
-if opt_dict["output"]:
+if opt_dict["merge"]:
     if opt_dict["extension"] in ['ps','pdf']:
-        output_name = opt_dict["output"]
+        output_name = opt_dict["merge"]
         if opt_dict["directory"]:
             output_name = opt_dict["directory"] + "/" + output_name
         canvas.Print(output_name+"[",opt_dict["extension"])
@@ -66,24 +62,24 @@ for file_name, path_list in file_list:
         if is_tree(key):
             obj = key.ReadObj()
             for branch in obj.GetListOfBranches():
-                if not opt_dict["output"]:
+                if not opt_dict["merge"]:
                     output_name = branch.GetName() + "." +opt_dict["extension"]
                     if opt_dict["directory"]:
                         output_name = opt_dict["directory"] + "/" + output_name
                 obj.Draw(branch.GetName())
-                if opt_dict["output"] or opt_dict["extension"] == 'pdf':
+                if opt_dict["merge"] or opt_dict["extension"] == 'pdf':
                     obj_title = "Title:"+branch.GetName()+" : "+branch.GetTitle()
                     canvas.Print(output_name,obj_title)
                 else:
                     canvas.Print(output_name,opt_dict["extension"])
         else:
-            if not opt_dict["output"]:
+            if not opt_dict["merge"]:
                 output_name = key.GetName() + "." +opt_dict["extension"]
                 if opt_dict["directory"]:
                     output_name = opt_dict["directory"] + "/" + output_name
             obj = key.ReadObj()
             obj.Draw()
-            if opt_dict["output"] or opt_dict["extension"] == 'pdf':
+            if opt_dict["merge"] or opt_dict["extension"] == 'pdf':
                 obj_title = "Title:"+key.GetClassName()+" : "+key.GetTitle()
                 canvas.Print(output_name,obj_title)
             else:
@@ -92,5 +88,5 @@ for file_name, path_list in file_list:
     root_file.Close()
 
 # Ending
-if opt_dict["output"]:
+if opt_dict["merge"]:
     canvas.Print(output_name+"]",obj_title)
