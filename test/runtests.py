@@ -22,9 +22,9 @@ def testCommand(testName,command,refFileName):
 
 
 ############################## PATTERN TESTS ############################
-testCommand("SimplePattern", "./test_pattern_to_tuple.py test.root", "SimplePattern.ref")
-testCommand("SimplePattern2", "./test_pattern_to_tuple.py test.root:tof", "SimplePattern2.ref")
-testCommand("SimplePattern3", "./test_pattern_to_tuple.py test.root:*", "SimplePattern3.ref")
+testCommand("SimplePattern", "./testPatternToFileNameAndPathSplitList.py test.root", "SimplePattern.ref")
+testCommand("SimplePattern2", "./testPatternToFileNameAndPathSplitList.py test.root:tof", "SimplePattern2.ref")
+testCommand("SimplePattern3", "./testPatternToFileNameAndPathSplitList.py test.root:*", "SimplePattern3.ref")
 #########################################################################
 
 ############################## ROOLS TESTS ##############################

@@ -17,7 +17,7 @@ def fileno(file_or_fd):
     return fd
 
 @contextmanager
-def stdout_redirected(to=os.devnull, stdout=None):
+def stdoutRedirected(to=os.devnull, stdout=None):
     if stdout is None:
        stdout = sys.stdout
 
@@ -39,5 +39,5 @@ def stdout_redirected(to=os.devnull, stdout=None):
             stdout.flush()
             os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
-def merged_stderr_stdout():  # $ exec 2>&1
-    return stdout_redirected(to=sys.stdout, stdout=sys.stderr)
+def mergedStderrStdout():  # $ exec 2>&1
+    return stdoutRedirected(to=sys.stdout, stdout=sys.stderr)

@@ -6,33 +6,34 @@ ROOT files to new trees on a destination ROOT file"""
 from cmdLineUtils import *
 
 # Definition of the function to copy subsets of trees
-def treeSubsetCopier(source_file,source_path,dest_file,dest_path,opt_dict):
+def copyTreeSubset(sourceFile,sourcePathSplit,destinationFile,destinationPathSplit,optDict):
     """
-    Copy a subset of the tree from (source_file,source_path)
-    to (dest_file,dest_path) according to options in opt_dict
+    Copy a subset of the tree from (sourceFile,sourcePathSplit)
+    to (destinationFile,destinationPathSplit) according to options in optDict
     """
-    chg_dir(source_file,source_path[:-1])
-    bigtree = ROOT.gDirectory.Get(source_path[-1])
-    nentries = bigtree.GetEntries()
-    chg_dir(dest_file,dest_path) # For the small tree not to be memory-resident
-    smalltree = bigtree.CloneTree(0)
-    first_event = opt_dict["first"] if opt_dict["first"] != None else 0
-    last_event = opt_dict["last"] if opt_dict["last"] != None and opt_dict["last"] < nentries-1 else nentries-1
-    for i in range(nentries):
-        if i >= first_event and i <= last_event:
-            bigtree.GetEntry(i)
-            smalltree.Fill()
-    smalltree.Write()
+    changeDirectory(sourceFile,sourcePathSplit[:-1])
+    bigTree = ROOT.gDirectory.Get(sourcePathSplit[-1])
+    nbrEntries = bigTree.GetEntries()
+    # changeDirectory for the small tree not to be memory-resident
+    changeDirectory(destinationFile,destinationPathSplit)
+    smallTree = bigTree.CloneTree(0)
+    firstEvent = optDict["first"] if optDict["first"] != None else 0
+    lastEvent = optDict["last"] if optDict["last"] != None and optDict["last"] < nbrEntries-1 else nbrEntries-1
+    for i in range(nbrEntries):
+        if i >= firstEvent and i <= lastEvent:
+            bigTree.GetEntry(i)
+            smallTree.Fill()
+    smallTree.Write()
 
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description="Copy subsets of trees from source ROOT files to new trees on a destination ROOT file")
-parser.add_argument("source_pattern_list", \
-                    help="file path and object path in the file : [file_path/]file[.root]:[object_path/]object", \
+parser.add_argument("sourcePatternList", \
+                    help="file path and object path in the file : [filePath/]file[.root]:[objectPath/]object", \
                     nargs='+')
-parser.add_argument("dest_pattern", \
-                    help="file path and object path in the file : [file_path/]file[.root]:[object_path/]object")
+parser.add_argument("destinationPattern", \
+                    help="file path and object path in the file : [filePath/]file[.root]:[objectPath/]object")
 parser.add_argument("-c","--compress", type=int, help="change the compression settings of the destination file")
 parser.add_argument("-r","--recreate", help="recreate the destination file", action="store_true")
 parser.add_argument("-f","--first", type=int, help="first event to copy")
@@ -40,28 +41,28 @@ parser.add_argument("-l","--last", type=int, help="last event to copy")
 args = parser.parse_args()
 
 # Create a list of tuples that contain a source ROOT file name and a list of path in this file
-source_list = [tup for pattern in args.source_pattern_list for tup in pattern_to_tuple(pattern)]
+sourceList = [tup for pattern in args.sourcePatternList for tup in patternToFileNameAndPathSplitList(pattern)]
 
 # Create a destination ROOT file name and a path in this file
-dest_list = pattern_to_tuple(args.dest_pattern,regexp=False)
-dest_name,dest_path_list = dest_list[0]
-dest_path = dest_path_list[0]
+destinationList = patternToFileNameAndPathSplitList(args.destinationPattern,regexp=False)
+destinationFileName,destinationPathSplitList = destinationList[0]
+destinationPathSplit = destinationPathSplitList[0]
 
 # Create a dictionnary with options
-opt_dict = vars(args)
-del opt_dict["source_pattern_list"]
-del opt_dict["dest_pattern"]
+optDict = vars(args)
+del optDict["sourcePatternList"]
+del optDict["destinationPattern"]
 
 # Creation of destination file (changing of the compression settings)
-dest_file = ROOT.TFile.Open(dest_name,"recreate") if opt_dict["recreate"] else ROOT.TFile.Open(dest_name,"update")
-if opt_dict["compress"]: dest_file.SetCompressionSettings(opt_dict["compress"])
+destinationFile = ROOT.TFile.Open(destinationFileName,"recreate") if optDict["recreate"] else ROOT.TFile.Open(destinationFileName,"update")
+if optDict["compress"]: destinationFile.SetCompressionSettings(optDict["compress"])
 
-# Loop on the ROOT files
-for source_name, path_list in source_list:
-    source_file = ROOT.TFile.Open(source_name) if source_name != dest_name else dest_file
-    for source_path in path_list:
-        if is_tree((source_file,source_path)):
-            treeSubsetCopier(source_file,source_path,dest_file,dest_path,opt_dict)
-    if source_name != dest_name:
-        source_file.Close()
-dest_file.Close()
+# Loop on the root files
+for sourceFileName, sourcePathSplitList in sourceList:
+    sourceFile = ROOT.TFile.Open(sourceFileName) if sourceFileName != destinationFileName else destinationFile
+    for sourcePathSplit in sourcePathSplitList:
+        if isTree((sourceFile,sourcePathSplit)):
+            copyTreeSubset(sourceFile,sourcePathSplit,destinationFile,destinationPathSplit,optDict)
+    if sourceFileName != destinationFileName:
+        sourceFile.Close()
+destinationFile.Close()

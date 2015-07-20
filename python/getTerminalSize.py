@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-"""Module which contains the get_terminal_size function"""
+"""Module which contains the getTerminalSize function"""
 
-# The code of the get_terminal_size function can be found here : https://gist.github.com/jtriley/1108174
+# The code of the getTerminalSize function can be found here : https://gist.github.com/jtriley/1108174
 # Thanks jtriley !!
 
 import os
@@ -11,7 +11,7 @@ import struct
 import platform
 import subprocess
 
-def get_terminal_size():
+def getTerminalSize():
     """ getTerminalSize()
      - get width and height of console
      - works on linux,os x,windows,cygwin(windows)
