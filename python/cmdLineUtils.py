@@ -2,16 +2,17 @@
 
 """Contain all utils for ROOT commandlines tools"""
 
-# Redirection of escape characters during importations
+# Redirection of escape characters during importation of ROOT
 from redirectEscapeCharacters import *
 with stdoutRedirected(to=os.devnull), mergedStderrStdout():
-    from getTerminalSize import *
     import ROOT
-    import argparse
-    import glob
-    import os
-    import sys
-    import fnmatch
+
+from getTerminalSize import *
+import argparse
+import glob
+import os
+import sys
+import fnmatch
 
 def changeDirectory(rootFile,pathSplit):
     """Change the current directory for

@@ -29,8 +29,13 @@ ROOT.gROOT.SetBatch()
 canvas = ROOT.TCanvas("canvas")
 
 # Options stuff
+if not optDict["extension"] and optDict["merge"]:
+    fileName = optDict["merge"]
+    extension = fileName.split(".")[-1]
+    if extension in ["ps","Portrait","Landscape","eps","Preview","pdf","svg","tex","gif","xpm","png","jpg"]:
+        optDict["extension"] = extension
 if not optDict["extension"]:
-    optDict["extension"] = "ps"
+    optDict["extension"] = "pdf"
 if optDict["directory"]:
     if not os.path.isdir(os.path.join(os.getcwd(),optDict["directory"])):
         os.system("mkdir {0}".format(optDict["directory"]))
@@ -65,7 +70,7 @@ for fileName, pathSplitList in sourceList:
                 if not optDict["merge"]:
                     outputFileName = branch.GetName() + "." +optDict["extension"]
                     if optDict["directory"]:
-                        outputFileName = optDict["directory"] + "/" + outputFileName
+                        outputFileName = optDict["directory"] + "/" + outputFileName # use os.path ...
                 obj.Draw(branch.GetName())
                 if optDict["merge"] or optDict["extension"] == 'pdf':
                     objTitle = "Title:"+branch.GetName()+" : "+branch.GetTitle()
@@ -76,7 +81,7 @@ for fileName, pathSplitList in sourceList:
             if not optDict["merge"]:
                 outputFileName = key.GetName() + "." +optDict["extension"]
                 if optDict["directory"]:
-                    outputFileName = optDict["directory"] + "/" + outputFileName
+                    outputFileName = optDict["directory"] + "/" + outputFileName # use os.path ...
             obj = key.ReadObj()
             obj.Draw()
             if optDict["merge"] or optDict["extension"] == 'pdf':
