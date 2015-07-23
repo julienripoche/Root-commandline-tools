@@ -19,7 +19,7 @@ args = parser.parse_args()
 # and lists of path in these files
 sourceList = \
     [tup for pattern in args.sourcePatternList \
-     for tup in patternToFileNameAndPathSplitList(pattern)]
+    for tup in patternToFileNameAndPathSplitList(pattern)]
 
 # Create a dictionnary with options
 optDict = vars(args)

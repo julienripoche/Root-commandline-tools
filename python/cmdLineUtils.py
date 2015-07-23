@@ -129,9 +129,9 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
         fileList.append((fileName,pathSplitList))
     return fileList
 
-def copyRootObject(sourceFile,sourcePathSplit,destinationFile,destinationPathSplit):
+def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
     """Copy objects from a file (sourceFile,sourcePathSplit)
-    to a directory in an other file (destinationFile,destinationPathSplit)
+    to a directory in an other file (destFile,destPathSplit)
     - that's a recursive function
     - Python adaptation of a root input/output tutorial :
       $ROOTSYS/tutorials/io/copyFiles.C"""
@@ -140,27 +140,27 @@ def copyRootObject(sourceFile,sourcePathSplit,destinationFile,destinationPathSpl
         cl = ROOT.gROOT.GetClass(classname)
         if (not cl): return
         if (cl.InheritsFrom(ROOT.TDirectory.Class())):
-            changeDirectory(destinationFile,destinationPathSplit)
+            changeDirectory(destFile,destPathSplit)
             if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
                 ROOT.gDirectory.mkdir(key.GetName())
             changeDirectory(sourceFile,sourcePathSplit+[key.GetName()])
             copyRootObject(sourceFile,sourcePathSplit+[key.GetName()], \
-                           destinationFile,destinationPathSplit+[key.GetName()])
+                           destFile,destPathSplit+[key.GetName()])
         elif (cl.InheritsFrom(ROOT.TTree.Class())):
             changeDirectory(sourceFile,sourcePathSplit[:-1])
             print "problem with cycles, don't forget to look at it..."
             T = ROOT.gDirectory.Get(key.GetName()+";1")
-            changeDirectory(destinationFile,destinationPathSplit)
+            changeDirectory(destFile,destPathSplit)
             newT = T.CloneTree(-1,"fast")
             newT.Write()
         else:
             obj = key.ReadObj()
-            changeDirectory(destinationFile,destinationPathSplit)
+            changeDirectory(destFile,destPathSplit)
             if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
                 ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()
             del obj
-    changeDirectory(destinationFile,destinationPathSplit)
+    changeDirectory(destFile,destPathSplit)
     ROOT.gDirectory.SaveSelf(ROOT.kTRUE)
 
 def deleteRootObject(rootFile,pathSplit,optDict):

@@ -5,30 +5,23 @@
 from cmdLineUtils import *
 from cmdLineHelps import *
 
-# Definition of the function to add a directory in a ROOT file
 def createDirectory(rootFile,pathSplit):
-    """
-    Add a directory named 'pathSplit[-1]'
-    in (rootFile,pathSplit[:-1])
-    """
+    """Add a directory named 'pathSplit[-1]'
+    in (rootFile,pathSplit[:-1])"""
     changeDirectory(rootFile,pathSplit[:-1])
     ROOT.gDirectory.mkdir(pathSplit[-1])
 
-# Definition of the function to recursively add directories in a ROOT file
 def createDirectories(rootFile,pathSplit,optDict):
-    """
-    Same behaviour as createDirectory but allows the possibility
-    to build an entire path recursively with opt_dict["parents"]
-    """
-    if not optDict["parents"]:
-        # if pathSplit == [], an empty file is created
-        if pathSplit != []:
-            createDirectory(rootFile,pathSplit)
+    """Same behaviour as createDirectory but allows the possibility
+    to build an whole path recursively with opt_dict["parents"]"""
+    if not optDict["parents"] and pathSplit != []:
+        createDirectory(rootFile,pathSplit)
     else:
         for i in range(len(pathSplit)):
             currentPathSplit = pathSplit[:i+1]
-            objNameList = [key.GetName() for key in \
-                         getKeyList(rootFile,currentPathSplit[:-1])]
+            objNameList = \
+                [key.GetName() for key in \
+                getKeyList(rootFile,currentPathSplit[:-1])]
             if not currentPathSplit[-1] in objNameList:
                 createDirectory(rootFile,currentPathSplit)
 
@@ -44,7 +37,7 @@ args = parser.parse_args()
 # and lists of path in these files
 sourceList = \
     [tup for pattern in args.sourcePatternList \
-     for tup in patternToFileNameAndPathSplitList(pattern,regexp=False)]
+    for tup in patternToFileNameAndPathSplitList(pattern,regexp=False)]
 
 # Create a dictionnary with options
 optDict = vars(args)
