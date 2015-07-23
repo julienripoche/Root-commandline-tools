@@ -5,6 +5,9 @@
 from cmdLineUtils import *
 from cmdLineHelps import *
 
+extensionList = ["ps","Portrait","Landscape","eps","Preview", \
+                "pdf","svg","tex","gif","xpm","png","jpg"]
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
@@ -34,18 +37,16 @@ canvas = ROOT.TCanvas("canvas")
 if not optDict["extension"] and optDict["merge"]:
     fileName = optDict["merge"]
     extension = fileName.split(".")[-1]
-    if extension in ["ps","Portrait","Landscape","eps","Preview","pdf","svg","tex","gif","xpm","png","jpg"]:
-        optDict["extension"] = extension
-if not optDict["extension"]:
-    optDict["extension"] = "pdf"
+    if extension in extensionList: optDict["extension"] = extension
+if not optDict["extension"]: optDict["extension"] = "pdf"
 if optDict["directory"]:
     if not os.path.isdir(os.path.join(os.getcwd(),optDict["directory"])):
         os.system("mkdir {0}".format(optDict["directory"]))
 if optDict["merge"]:
     if optDict["extension"] in ['ps','pdf']:
         outputFileName = optDict["merge"]
-        if optDict["directory"]:
-           outputFileName = optDict["directory"] + "/" + outputFileName
+        if optDict["directory"]: outputFileName = \
+           optDict["directory"] + "/" + outputFileName
         canvas.Print(outputFileName+"[",optDict["extension"])
     else:
         print("Can't merge pictures, only postscript or pdf files")
@@ -61,8 +62,7 @@ for fileName, pathSplitList in sourceList:
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
     dirList.sort()
-    for pathSplit in dirList:
-        keyList.extend(getKeyList(rootFile,pathSplit))
+    for pathSplit in dirList: keyList.extend(getKeyList(rootFile,pathSplit))
     keyList = [key for key in keyList if not isDirectory(key)]
 
     # Loop
@@ -71,9 +71,12 @@ for fileName, pathSplitList in sourceList:
             obj = key.ReadObj()
             for branch in obj.GetListOfBranches():
                 if not optDict["merge"]:
-                    outputFileName = branch.GetName() + "." +optDict["extension"]
+                    outputFileName = \
+                        branch.GetName() + "." +optDict["extension"]
                     if optDict["directory"]:
-                        outputFileName = optDict["directory"] + "/" + outputFileName # use os.path ...
+                        print "Here, use os.path !"
+                        outputFileName = \
+                            optDict["directory"] + "/" + outputFileName
                 obj.Draw(branch.GetName())
                 if optDict["merge"] or optDict["extension"] == 'pdf':
                     objTitle = "Title:"+branch.GetName()+" : "+branch.GetTitle()
@@ -84,7 +87,9 @@ for fileName, pathSplitList in sourceList:
             if not optDict["merge"]:
                 outputFileName = key.GetName() + "." +optDict["extension"]
                 if optDict["directory"]:
-                    outputFileName = optDict["directory"] + "/" + outputFileName # use os.path ...
+                    print "Here, use os.path !"
+                    outputFileName = \
+                        optDict["directory"] + "/" + outputFileName
             obj = key.ReadObj()
             obj.Draw()
             if optDict["merge"] or optDict["extension"] == 'pdf':

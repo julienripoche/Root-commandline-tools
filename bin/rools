@@ -5,42 +5,43 @@
 from cmdLineUtils import *
 from cmdLineHelps import *
 
+ANSI_BOLD = "\x1B[1m"
+ANSI_BLUE = "\x1B[34m"
+ANSI_END = "\x1B[0m"
+
 def colorInBold(string):
     """Color the string in bold"""
-    if sys.stdout.isatty(): # if the output is the terminal
-        ansiBold = "\x1B[1m"
-        ansiEnd = "\x1B[0m"
-        return ansiBold+string+ansiEnd
-    else:
-        return string
+    # if the output is the terminal
+    if sys.stdout.isatty(): return ANSI_BOLD+string+ANSI_END
+    else: return string
 
 def colorInBlue(string):
     """Color the string in blue"""
-    if sys.stdout.isatty(): # if the output is the terminal
-        ansiBlue = "\x1B[34m"
-        ansiEnd = "\x1B[0m"
-        return ansiBlue+string+ansiEnd
-    else:
-        return string
+    # if the output is the terminal
+    if sys.stdout.isatty(): return ANSI_BLUE+string+ANSI_END
+    else: return string
 
-# Template for tree columns print
-treeTemplate = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"
+TREE_TEMPLATE = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"
+LONG_TEMPLATE = \
+    colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}" + \
+    "{2:{nameWidth}}{3:{titleWidth}}"
 
 def recursifTreePrinter(tree,indentLevel):
-    # Width informations
-    if len(tree.GetListOfBranches()) > 0:
-        maxCharName = max([len(branch.GetName()) for branch in tree.GetListOfBranches()])
-        maxCharTitle = max([len(branch.GetTitle()) for branch in tree.GetListOfBranches()])
-        #maxCharMemory = max([len(str(branch.GetTotBytes())) for branch in tree.GetListOfBranches()])
-        dic = {"nameWidth":maxCharName+2,"titleWidth":maxCharTitle+4,"memoryWidth":1}
-
-    # Print loop
-    for branch in tree.GetListOfBranches():
-        # Data
-        rec = [branch.GetName(), \
-               "\""+branch.GetTitle()+"\"", \
-               str(branch.GetTotBytes())]
-         # Print
+    """Function to recursively print tree informations"""
+    if len(tree.GetListOfBranches()) > 0: # Width informations
+        maxCharName = max([len(branch.GetName()) \
+            for branch in tree.GetListOfBranches()])
+        maxCharTitle = max([len(branch.GetTitle()) \
+            for branch in tree.GetListOfBranches()])
+        dic = { \
+            "nameWidth":maxCharName+2, \
+            "titleWidth":maxCharTitle+4, \
+            "memoryWidth":1}
+    for branch in tree.GetListOfBranches(): # Print loop
+        rec = \
+            [branch.GetName(), \
+            "\""+branch.GetTitle()+"\"", \
+            str(branch.GetTotBytes())]
         print "  "*indentLevel + treeTemplate.format(*rec,**dic)
         # if indentLevel < optDict["deeper_level"]: to keep in mind
         recursifTreePrinter(branch,indentLevel+1)
@@ -53,55 +54,57 @@ def recursifTreePrinter(tree,indentLevel):
 #            rec = [tree.GetName(), \
 #               "\""+tree.GetTitle()+"\"", \
 #               str(tree.GetTotBytes())]
-#            dic = {"name_width":len(tree.GetName())+2,"title_width":len(tree.GetTitle())+4,"memory_width":1}
+#            dic = {"name_width":len(tree.GetName())+2, \
+#                   "title_width":len(tree.GetTitle())+4,"memory_width":1}
 #            print tree_template.format(*rec,**dic)
 #            recursif(tree,1)
 
 def prepareTime(time):
-    """ Function to be sure of the format of time
+    """Function to be sure of the format of time
     (174512 for 17h 45m 12s and 094023 for 09h 40m 23s)"""
     time = str(time)
     time = '000000'+time
     time = time[len(time)-6:]
     return time
 
+MONTH = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun', \
+         7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
+
 def roolsPrintLongLs(keyList,optDict):
     """Function to print a list of Tkey in columns,
     classname, datetime, name and title"""
-
-    # Template for columns print
-    template = colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}{2:{nameWidth}}{3:{titleWidth}}"
-
-    # Width informations
-    if len(keyList) > 0:
+    if len(keyList) > 0: # Width informations
         maxCharClass = max([len(key.GetClassName()) for key in keyList])
         maxCharTime = 12
         maxCharName = max([len(key.GetName()) for key in keyList])
-        #maxCharTitle = max([len(key.GetTitle()) for key in keyList])
-        dic = {"classWidth":maxCharClass+2,"timeWidth":maxCharTime+2,"nameWidth":maxCharName+2,"titleWidth":1}
-
-    date =ROOT.Long(0)  
-    month={1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun',7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
+        dic = { \
+            "classWidth":maxCharClass+2, \
+            "timeWidth":maxCharTime+2, \
+            "nameWidth":maxCharName+2,\
+            "titleWidth":1}
+    date = ROOT.Long(0)  
     for key in keyList:
-        time =ROOT.Long(0)
+        time = ROOT.Long(0)
         key.GetDatime().GetDateTime(key.GetDatime().Get(),date,time)
         time = prepareTime(time)
-        rec = [key.GetClassName(), \
-               month[int(str(date)[4:6])]+" " +str(date)[6:]+" "+time[:2]+":"+time[2:4], \
-               key.GetName(), \
-               "\""+key.GetTitle()+"\""]
-        print template.format(*rec,**dic)
+        rec = \
+            [key.GetClassName(), \
+            MONTH[int(str(date)[4:6])]+" " +str(date)[6:]+ \
+            " "+time[:2]+":"+time[2:4], \
+            key.GetName(), \
+            "\""+key.GetTitle()+"\""]
+        print LONG_TEMPLATE.format(*rec,**dic)
         if optDict['t'] and isTree(key):
             tree = key.ReadObj()
             recursifTreePrinter(tree,1)
 
 def roolsPrintLs(input_list):
     """Print list of strings in columns"""
-    # This code is adaptated from the pprint_list function here : http://stackoverflow.com/questions/25026556/output-list-like-ls
+    # This code is adaptated from the pprint_list function here :
+    # http://stackoverflow.com/questions/25026556/output-list-like-ls
     # Thanks hawkjo !!
-    if len(input_list) == 0:
-        return
-    (term_width, term_height) =  getTerminalSize()
+    if len(input_list) == 0: return
+    (term_width, term_height) = getTerminalSize()
     min_chars_between = 2
     min_element_width = min( len(x) for x in input_list ) + min_chars_between
     max_element_width = max( len(x) for x in input_list ) + min_chars_between
@@ -112,16 +115,16 @@ def roolsPrintLs(input_list):
         # Start with max possible number of columns and reduce until it fits
         ncol = min( len(input_list), term_width / min_element_width  )
         while True:
-            col_widths = [ max( len(x) + min_chars_between \
-                                for j, x in enumerate( input_list ) if j % ncol == i ) \
-                                for i in range(ncol) ]
+            col_widths = \
+                [ max( len(x) + min_chars_between \
+                for j, x in enumerate( input_list ) if j % ncol == i ) \
+                for i in range(ncol) ]
             if sum( col_widths ) <= term_width: break
             else: ncol -= 1
     for i, x in enumerate(input_list):
-        if i != len(input_list)-1:
+        if i != len(input_list)-1: # Don't add spaces after the last print
             sys.stdout.write(x.ljust(col_widths[i%ncol]))
         else:
-            # Don't add spaces after the last print
             sys.stdout.write(x)
         if i == len(input_list) - 1 or (i+1) % ncol == 0:
             sys.stdout.write('\n')
@@ -129,12 +132,9 @@ def roolsPrintLs(input_list):
 def roolsPrint(keyList,optDict):
     """Print the informations given by keyList with a rools
     style choosen with optDict"""
-    if optDict['l']:
-        roolsPrintLongLs(keyList,optDict)
-    else:
-        # Don't forget color and bold, make a different function
-        objNameList = [key.GetName() for key in keyList]
-        roolsPrintLs(objNameList)
+    if optDict['l']: roolsPrintLongLs(keyList,optDict)
+    else: roolsPrintLs([key.GetName() for key in keyList])
+    # Don't forget color and bold, make a different function
 
 ##### Beginning of the main code #####
 
@@ -165,34 +165,26 @@ for fileName, pathSplitList in sourceList:
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
     dirList.sort()
-
-    # Heading
-    if len(sourceList) > 1 and not first_round_file:
-        print("") # Separator if there is many File
-    else:
-        first_round_file = False
-    if len(sourceList) > 1: # Paths of file and object
-	print("{0} :".format(fileName))
-    if keyList != []:
-        not_dir_objects_first = True
-
+    # Separator if there is many Files
+    if len(sourceList) > 1 and not first_round_file: print("")
+    else: first_round_file = False
+    # Paths of file and object
+    if len(sourceList) > 1: print("{0} :".format(fileName))
+    if keyList != []: not_dir_objects_first = True
     # Print with the rools style
     roolsPrint(keyList,optDict)
-
+    # Loop on the directories
     first_round_directory = True
     for pathSplit in dirList:
         keyList = getKeyList(rootFile,pathSplit)
         keyList.sort()
-        
-        # Heading
-        if (len(pathSplitList) > 1 and not first_round_directory) or not_dir_objects_first:
-            print("") # Separator if there is many Files
+        # Separator if there is many Files
+        if (len(pathSplitList) > 1 and not first_round_directory) \
+           or not_dir_objects_first: print("")
         not_dir_objects_first = False
         first_round_directory = False
-        if len(pathSplitList) > 1: # Paths of file and object
-            print("{0} :".format("/".join(pathSplit)))
-
+        # Paths of file and object
+        if len(pathSplitList) > 1: print("{0} :".format("/".join(pathSplit)))
         # Print with the rools style
         roolsPrint(keyList,optDict)
-            
     rootFile.Close()
