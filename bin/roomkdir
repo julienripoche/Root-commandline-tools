@@ -3,6 +3,7 @@
 """Commandline to add directories in ROOT files"""
 
 from cmdLineUtils import *
+from cmdLineHelps import *
 
 # Definition of the function to add a directory in a ROOT file
 def createDirectory(rootFile,pathSplit):
@@ -34,15 +35,16 @@ def createDirectories(rootFile,pathSplit,optDict):
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="Add directories in a ROOT files")
-parser.add_argument("sourcePatternList", \
-                    help="file path and object path in the file : [filePath/]file[.root]:[objectPath/]object", \
-                    nargs='+')
-parser.add_argument("-p", "--parents", help="no error if existing, make parent directories as needed", action="store_true")
+parser = argparse.ArgumentParser(description=ROOMKDIR_HELP)
+parser.add_argument("sourcePatternList", help=ARG_HELP, nargs='+')
+parser.add_argument("-p", "--parents", help=PARENT_HELP, action="store_true")
 args = parser.parse_args()
 
-# Create a list of tuples that contain a source ROOT file name and a list of path in this file
-sourceList = [tup for pattern in args.sourcePatternList for tup in patternToFileNameAndPathSplitList(pattern,regexp=False)]
+# Create a list of tuples that contain source ROOT file names
+# and lists of path in these files
+sourceList = \
+    [tup for pattern in args.sourcePatternList \
+     for tup in patternToFileNameAndPathSplitList(pattern,regexp=False)]
 
 # Create a dictionnary with options
 optDict = vars(args)
@@ -50,7 +52,8 @@ del optDict["sourcePatternList"]
 
 # Loop on the ROOT files
 for fileName, pathSplitList in sourceList:
-    rootFile = ROOT.TFile.Open(fileName,"update")
+    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+        rootFile = ROOT.TFile.Open(fileName,"update")
     for pathSplit in pathSplitList:
         createDirectories(rootFile,pathSplit,optDict)
     rootFile.Close()

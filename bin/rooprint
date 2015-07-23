@@ -3,21 +3,23 @@
 """Commandline to print ROOT files contents on ps,pdf or png,gif.. files"""
 
 from cmdLineUtils import *
+from cmdLineHelps import *
 
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description="Print ROOT files contents on ps,pdf or png,gif.. files")
-parser.add_argument("sourcePatternList", \
-                    help="file path and object path in the file : [filePath/]file[.root]:[objectPath/]object", \
-                    nargs='+')
-parser.add_argument("-d", "--directory", help="put output files in a subdirectory named 'directory'")
-parser.add_argument("-m", "--merge", help="merge files in a file named 'merge' (only for ps and pdf)")
-parser.add_argument("-e", "--extension", help="extension of the output (ex: pdf, png)")
+parser = argparse.ArgumentParser(description=ROOPRINT_HELP)
+parser.add_argument("sourcePatternList", help=ARG_HELP, nargs='+')
+parser.add_argument("-d", "--directory", help=DIRECTORY_HELP)
+parser.add_argument("-m", "--merge", help=MERGE_HELP)
+parser.add_argument("-e", "--extension", help=EXTENSION_HELP)
 args = parser.parse_args()
 
-# Create a list of tuples that contain a source ROOT file name and a list of path in this file
-sourceList = [tup for pattern in args.sourcePatternList for tup in patternToFileNameAndPathSplitList(pattern)]
+# Create a list of tuples that contain source ROOT file names
+# and lists of path in these files
+sourceList = \
+    [tup for pattern in args.sourcePatternList \
+     for tup in patternToFileNameAndPathSplitList(pattern)]
 
 # Create a dictionnary with options
 optDict = vars(args)
@@ -51,7 +53,8 @@ if optDict["merge"]:
 
 # Loop on the root files
 for fileName, pathSplitList in sourceList:
-    rootFile = ROOT.TFile.Open(fileName)
+    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+        rootFile = ROOT.TFile.Open(fileName)
 
     # Fill the key list (almost the same as in rools)
     objList,dirList = typeSelector(rootFile,pathSplitList)

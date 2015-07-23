@@ -20,7 +20,6 @@ def testCommand(testName,command,refFileName):
         global failure_nb
         failure_nb += 1
 
-
 ############################## PATTERN TESTS ############################
 testCommand("SimplePattern", "./testPatternToFileNameAndPathSplitList.py test.root", "SimplePattern.ref")
 testCommand("SimplePattern2", "./testPatternToFileNameAndPathSplitList.py test.root:tof", "SimplePattern2.ref")
@@ -37,7 +36,7 @@ testCommand("LongRools2", "rools -l test.root:*", "LongRools2.ref")
 testCommand("LongRools3", "rools -l test.root:tof", "LongRools3.ref")
 testCommand("LongRools4", "rools -l test.root:tof/*", "LongRools4.ref")
 testCommand("WebRools", "rools http://root.cern.ch/files/pippa.root", "WebRools.ref")
-testCommand("WebRools2", "rools http://root.cern.ch/files/pippa.root -l", "WebRools2.ref")
+testCommand("WebRools2", "rools -l http://root.cern.ch/files/pippa.root", "WebRools2.ref")
 #########################################################################
 
 ############################## ROOCP TESTS ##############################
@@ -111,6 +110,10 @@ testCommand("SimpleRoomkdir2", "roomkdir target.root:dir/new_directory && rools 
 if os.path.isfile("target.root"):
     os.system("rm target.root")
 testCommand("SimpleRoomkdir3", "roomkdir target.root && rools target.root", "SimpleRoomkdir3.ref")
+if os.path.isfile("target.root"):
+    os.system("rm target.root")
+os.system("cp test.root target.root")
+testCommand("SimpleRoomkdir4", "roomkdir -p target.root:a/b/c && rools target.root:a/b", "SimpleRoomkdir4.ref")
 if os.path.isfile("target.root"):
     os.system("rm target.root")
 #########################################################################
