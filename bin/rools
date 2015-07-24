@@ -27,7 +27,7 @@ LONG_TEMPLATE = \
     "{2:{nameWidth}}{3:{titleWidth}}"
 
 def recursifTreePrinter(tree,indentLevel):
-    """Function to recursively print tree informations"""
+    """Print recursively tree informations"""
     if len(tree.GetListOfBranches()) > 0: # Width informations
         maxCharName = max([len(branch.GetName()) \
             for branch in tree.GetListOfBranches()])
@@ -60,8 +60,9 @@ def recursifTreePrinter(tree,indentLevel):
 #            recursif(tree,1)
 
 def prepareTime(time):
-    """Function to be sure of the format of time
-    (174512 for 17h 45m 12s and 094023 for 09h 40m 23s)"""
+    """Get time in the proper shape
+    ex : 174512 for 17h 45m 12s
+    ex : 094023 for 09h 40m 23s"""
     time = str(time)
     time = '000000'+time
     time = time[len(time)-6:]
@@ -71,8 +72,8 @@ MONTH = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun', \
          7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
 
 def roolsPrintLongLs(keyList,optDict):
-    """Function to print a list of Tkey in columns,
-    classname, datetime, name and title"""
+    """Print a list of Tkey in columns
+    pattern : classname, datetime, name and title"""
     if len(keyList) > 0: # Width informations
         maxCharClass = max([len(key.GetClassName()) for key in keyList])
         maxCharTime = 12
@@ -130,7 +131,7 @@ def roolsPrintLs(input_list):
             sys.stdout.write('\n')
 
 def roolsPrint(keyList,optDict):
-    """Print the informations given by keyList with a rools
+    """Print informations given by keyList with a rools
     style choosen with optDict"""
     if optDict['l']: roolsPrintLongLs(keyList,optDict)
     else: roolsPrintLs([key.GetName() for key in keyList])

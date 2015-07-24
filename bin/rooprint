@@ -33,15 +33,21 @@ ROOT.gErrorIgnoreLevel = 9999
 ROOT.gROOT.SetBatch()
 canvas = ROOT.TCanvas("canvas")
 
-# Options stuff
+# Take the extension of output file (merge option)
 if not optDict["extension"] and optDict["merge"]:
     fileName = optDict["merge"]
     extension = fileName.split(".")[-1]
     if extension in extensionList: optDict["extension"] = extension
+
+# Use pdf as default extension
 if not optDict["extension"]: optDict["extension"] = "pdf"
+
+# Create the output directory (directory option)
 if optDict["directory"]:
     if not os.path.isdir(os.path.join(os.getcwd(),optDict["directory"])):
         os.system("mkdir {0}".format(optDict["directory"]))
+
+# Make the output name, begin to print (merge option)
 if optDict["merge"]:
     if optDict["extension"] in ['ps','pdf']:
         outputFileName = optDict["merge"]
@@ -56,7 +62,6 @@ if optDict["merge"]:
 for fileName, pathSplitList in sourceList:
     with stdoutRedirected(to=os.devnull), mergedStderrStdout():
         rootFile = ROOT.TFile.Open(fileName)
-
     # Fill the key list (almost the same as in rools)
     objList,dirList = typeSelector(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
@@ -64,8 +69,6 @@ for fileName, pathSplitList in sourceList:
     dirList.sort()
     for pathSplit in dirList: keyList.extend(getKeyList(rootFile,pathSplit))
     keyList = [key for key in keyList if not isDirectory(key)]
-
-    # Loop
     for key in keyList:
         if isTree(key):
             obj = key.ReadObj()
@@ -97,9 +100,8 @@ for fileName, pathSplitList in sourceList:
                 canvas.Print(outputFileName,objTitle)
             else:
                 canvas.Print(outputFileName,optDict["extension"])
-
     rootFile.Close()
 
-# Ending
+# End to print (merge option)
 if optDict["merge"]:
     canvas.Print(outputFileName+"]",objTitle)
