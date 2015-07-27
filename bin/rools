@@ -87,7 +87,7 @@ def roolsPrintLongLs(keyList,optDict,indent):
             key.GetName(), \
             "\""+key.GetTitle()+"\""]
         print LONG_TEMPLATE_INDENTED.format(*rec,**dic)
-        if optDict['tree'] and isTree(key):
+        if optDict['tree'] and isTreeKey(key):
             tree = key.ReadObj()
             recursifTreePrinter(tree,1)
 
@@ -128,17 +128,17 @@ def roolsPrintSimpleLs(keyList,indent):
         if (i+1)%ncol != 0 and i != len(keyList)-1:
             if not sys.stdout.isatty(): write( \
                 key.GetName().ljust(col_widths[i%ncol]))
-            elif isDirectory(keyList[i]): write( \
+            elif isDirectoryKey(keyList[i]): write( \
                 colorInBlue(key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_BLUE+ANSI_END) = len("\x1B[34m"+"\x1B[0m") = 9
-            elif isTree(keyList[i]): write( \
+            elif isTreeKey(keyList[i]): write( \
                 colorInGreen(key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_GREEN+ANSI_END) = len("\x1B[32m"+"\x1B[0m") = 9
             else: write(key.GetName().ljust(col_widths[i%ncol]))
         else: # No spaces after the last element of the line or of the list
             if not sys.stdout.isatty(): write(key.GetName())
-            elif isDirectory(keyList[i]): write(colorInBlue(key.GetName()))
-            elif isTree(keyList[i]): write(colorInGreen(key.GetName()))
+            elif isDirectoryKey(keyList[i]): write(colorInBlue(key.GetName()))
+            elif isTreeKey(keyList[i]): write(colorInGreen(key.GetName()))
             else: write(key.GetName())
             write('\n')
 

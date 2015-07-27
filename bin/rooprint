@@ -68,9 +68,9 @@ for fileName, pathSplitList in sourceList:
     keyList.sort()
     dirList.sort()
     for pathSplit in dirList: keyList.extend(getKeyList(rootFile,pathSplit))
-    keyList = [key for key in keyList if not isDirectory(key)]
+    keyList = [key for key in keyList if not isDirectoryKey(key)]
     for key in keyList:
-        if isTree(key):
+        if isTreeKey(key):
             obj = key.ReadObj()
             for branch in obj.GetListOfBranches():
                 if not optDict["merge"]:

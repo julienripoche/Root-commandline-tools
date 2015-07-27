@@ -13,12 +13,21 @@ import glob
 import os
 import sys
 import fnmatch
+import logging
 
 def changeDirectory(rootFile,pathSplit):
     """Change the current directory (ROOT.gDirectory)
     by the corresponding directory (rootFile,pathSplit)"""
     rootFile.cd()
-    for directoryName in pathSplit: ROOT.gDirectory.Get(directoryName).cd()
+    for directoryName in pathSplit:
+        ROOT.gDirectory.Get(directoryName).cd()
+        #directory = ROOT.gDirectory.Get(directoryName)
+        #if hasattr(directory,"cd"):
+        #    directory.cd()
+        #else:
+        #    logging.error("There is no directory named \"{0}\"" \
+        #                  .format(directoryName))
+        #    break
 
 def getKey(rootFile,pathSplit):
     """Get the key of the corresponding object
@@ -26,32 +35,36 @@ def getKey(rootFile,pathSplit):
     changeDirectory(rootFile,pathSplit[:-1])
     return ROOT.gDirectory.GetKey(pathSplit[-1])
 
-def isDirectory(key):
-    """Return True if the object (corresponding to key)
+def isDirectoryKey(key):
+    """Return True if the object, corresponding to the key,
     inherits from TDirectory, False if not"""
-    if type(key) != ROOT.TKey: # received (rootFile,pathSplit) instead of a key
-        rootFile,pathSplit = key
-        if pathSplit == []: return True # the object is the rootFile itself
-        else: key = getKey(rootFile,pathSplit)
     classname = key.GetClassName()
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TDirectory.Class())
 
-def isTree(key):
-    """Return True if the object (corresponding to key)
+def isDirectory(rootFile,pathSplit):
+    """Return True if the object, corresponding to (rootFile,pathSplit),
+    inherits from TDirectory, False if not"""
+    if pathSplit == []: return True # the object is the rootFile itself
+    else: return isDirectoryKey(getKey(rootFile,pathSplit))
+
+def isTreeKey(key):
+    """Return True if the object, corresponding to the key,
     inherits from TTree, False if not"""
-    if type(key) != ROOT.TKey: # received (rootFile,pathSplit) instead of a key
-        rootFile,pathSplit = key
-        if pathSplit == []: return False # the object is the rootFile itself
-        else: key = getKey(rootFile,pathSplit)
     classname = key.GetClassName()
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TTree.Class())
 
+def isTree(rootFile,pathSplit):
+    """Return True if the object, corresponding to (rootFile,pathSplit),
+    inherits from TTree, False if not"""
+    if pathSplit == []: return False # the object is the rootFile itself
+    else: return isTree(getKey(rootFile,pathSplit))
+
 def getKeyList(rootFile,pathSplit):
     """Get the list of key of the directory (rootFile,pathSplit),
     if (rootFile,pathSplit) is not a directory then get the key"""
-    if isDirectory((rootFile,pathSplit)):
+    if isDirectory(rootFile,pathSplit):
         changeDirectory(rootFile,pathSplit)
         return ROOT.gDirectory.GetListOfKeys()
     else: return [getKey(rootFile,pathSplit)]
@@ -63,7 +76,7 @@ def typeSelector(rootFile,pathSplitList):
     dirList = []
     for pathSplit in pathSplitList:
         if pathSplit == []: dirList.append(pathSplit)
-        elif isDirectory((rootFile,pathSplit)): dirList.append(pathSplit)
+        elif isDirectory(rootFile,pathSplit): dirList.append(pathSplit)
         else: objList.append(pathSplit)
     return objList,dirList
 
@@ -82,14 +95,14 @@ def patternToPathSplitList(fileName,pattern):
         newPathSplitList = []
         for pathSplit in pathSplitList:
             # security to stay in top level of trees
-            if isTree((rootFile,pathSplit[:-1])): continue
-            elif isDirectory((rootFile,pathSplit)):
+            if isTree(rootFile,pathSplit[:-1]): continue
+            elif isDirectory(rootFile,pathSplit):
                 changeDirectory(rootFile,pathSplit)
                 newPathSplitList.extend( \
                     [pathSplit + [key.GetName()] \
                     for key in ROOT.gDirectory.GetListOfKeys() \
                     if fnmatch.fnmatch(key.GetName(),patternPiece)])
-            elif isTree((rootFile,pathSplit)):
+            elif isTree(rootFile,pathSplit):
                 changeDirectory(rootFile,pathSplit[:-1])
                 T = ROOT.gDirectory.Get(pathSplit[-1])
                 newPathSplitList.extend( \
@@ -98,8 +111,7 @@ def patternToPathSplitList(fileName,pattern):
                     if fnmatch.fnmatch(branch.GetName(),patternPiece)])
         pathSplitList = newPathSplitList
     if pathSplitList == []: # no match
-        print("patternToPathSplitList : can't find {0} in {1}" \
-              .format(pattern,fileName))
+        logging.warning("Can't find {0} in {1}".format(pattern,fileName))
     return pathSplitList
 
 def patternToFileNameAndPathSplitList(pattern,regexp = True):

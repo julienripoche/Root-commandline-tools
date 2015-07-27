@@ -74,7 +74,7 @@ for sourceFileName, sourcePathSplitList in sourceList:
         if sourceFileName != destFileName else \
         destFile
     for sourcePathSplit in sourcePathSplitList:
-        if isTree((sourceFile,sourcePathSplit)): copyTreeSubset( \
+        if isTree(sourceFile,sourcePathSplit): copyTreeSubset( \
             sourceFile,sourcePathSplit, \
             destFile,destPathSplit,optDict)
     if sourceFileName != destFileName:
