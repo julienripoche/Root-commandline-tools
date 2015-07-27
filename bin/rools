@@ -11,20 +11,17 @@ ANSI_GREEN = "\x1B[32m"
 ANSI_END = "\x1B[0m"
 
 def colorInBold(string):
-    """Color the string in bold"""
-    # if the output is the terminal
+    """Color the string in bold if the output is the terminal"""
     if sys.stdout.isatty(): return ANSI_BOLD+string+ANSI_END
     else: return string
 
 def colorInBlue(string):
-    """Color the string in blue"""
-    # if the output is the terminal
+    """Color the string in blue if the output is the terminal"""
     if sys.stdout.isatty(): return ANSI_BLUE+string+ANSI_END
     else: return string
 
 def colorInGreen(string):
-    """Color the string in green"""
-    # if the output is the terminal
+    """Color the string in green if the output is the terminal"""
     if sys.stdout.isatty(): return ANSI_GREEN+string+ANSI_END
     else: return string
 
@@ -61,14 +58,14 @@ def prepareTime(time):
 
 MONTH = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun', \
          7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
-
 LONG_TEMPLATE = \
     colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}" + \
     "{2:{nameWidth}}{3:{titleWidth}}"
 
-def roolsPrintLongLs(keyList,optDict):
+def roolsPrintLongLs(keyList,optDict,indent):
     """Print a list of Tkey in columns
     pattern : classname, datetime, name and title"""
+    LONG_TEMPLATE_INDENTED = " "*indent + LONG_TEMPLATE
     if len(keyList) > 0: # Width informations
         maxCharClass = max([len(key.GetClassName()) for key in keyList])
         maxCharTime = 12
@@ -76,7 +73,7 @@ def roolsPrintLongLs(keyList,optDict):
         dic = { \
             "classWidth":maxCharClass+2, \
             "timeWidth":maxCharTime+2, \
-            "nameWidth":maxCharName+2,\
+            "nameWidth":maxCharName+2, \
             "titleWidth":1}
     date = ROOT.Long(0)  
     for key in keyList:
@@ -89,12 +86,17 @@ def roolsPrintLongLs(keyList,optDict):
             " "+time[:2]+":"+time[2:4], \
             key.GetName(), \
             "\""+key.GetTitle()+"\""]
-        print LONG_TEMPLATE.format(*rec,**dic)
+        print LONG_TEMPLATE_INDENTED.format(*rec,**dic)
         if optDict['tree'] and isTree(key):
             tree = key.ReadObj()
             recursifTreePrinter(tree,1)
 
-def roolsPrintSimpleLs(keyList):
+def write(string, indent=0):
+    """Use sys.stdout.write to write the string
+    with an indentation equal to indent"""
+    sys.stdout.write(" "*indent + string)
+
+def roolsPrintSimpleLs(keyList,indent):
     """Print list of strings in columns
     - blue for directories
     - green for trees"""
@@ -103,6 +105,7 @@ def roolsPrintSimpleLs(keyList):
     # Thanks hawkjo !!
     if len(keyList) == 0: return
     (term_width, term_height) = getTerminalSize()
+    term_width = term_width - indent
     min_chars_between = 2
     min_element_width = min( len(key.GetName()) for key in keyList ) \
                         + min_chars_between
@@ -120,25 +123,31 @@ def roolsPrintSimpleLs(keyList):
             if sum( col_widths ) <= term_width: break
             else: ncol -= 1
     for i, key in enumerate(keyList):
-        if i != len(keyList)-1: # Don't add spaces after the last print
-            if not sys.stdout.isatty(): sys.stdout.write( \
+        if i%ncol == 0: write("",indent) # indentation
+        # Don't add spaces after the last element of the line or of the list
+        if (i+1)%ncol != 0 and i != len(keyList)-1:
+            if not sys.stdout.isatty(): write( \
                 key.GetName().ljust(col_widths[i%ncol]))
-            elif isDirectory(keyList[i]): sys.stdout.write( \
+            elif isDirectory(keyList[i]): write( \
                 colorInBlue(key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_BLUE+ANSI_END) = len("\x1B[34m"+"\x1B[0m") = 9
-            elif isTree(keyList[i]): sys.stdout.write( \
+            elif isTree(keyList[i]): write( \
                 colorInGreen(key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_GREEN+ANSI_END) = len("\x1B[32m"+"\x1B[0m") = 9
-            else: sys.stdout.write(key.GetName().ljust(col_widths[i%ncol]))
-        else: sys.stdout.write(key.GetName())
-        if i == len(keyList)-1 or (i+1)%ncol == 0: sys.stdout.write('\n')
+            else: write(key.GetName().ljust(col_widths[i%ncol]))
+        else: # No spaces after the last element of the line or of the list
+            if not sys.stdout.isatty(): write(key.GetName())
+            elif isDirectory(keyList[i]): write(colorInBlue(key.GetName()))
+            elif isTree(keyList[i]): write(colorInGreen(key.GetName()))
+            else: write(key.GetName())
+            write('\n')
 
-def roolsPrint(keyList,optDict):
+def roolsPrint(keyList,optDict,indent=0):
     """Print informations given by keyList with a rools
     style choosen with optDict"""
-    if optDict['long'] or optDict['tree']: roolsPrintLongLs(keyList,optDict)
-    else: roolsPrintSimpleLs(keyList)
-    # Don't forget color and bold, make a different function
+    if optDict['long'] or optDict['tree']: \
+       roolsPrintLongLs(keyList,optDict,indent)
+    else: roolsPrintSimpleLs(keyList,indent)
 
 ##### Beginning of the main code #####
 
@@ -159,9 +168,12 @@ sourceList = \
 optDict = vars(args)
 del optDict["sourcePatternList"]
 
+# Initialize indent level
+if len(sourceList) > 1: indentLevel = 2
+else : indentLevel = 0
+
 # Loop on the ROOT files
 first_round_file = True
-not_dir_objects_first = False
 for fileName, pathSplitList in sourceList:
     with stdoutRedirected(to=os.devnull), mergedStderrStdout():
         rootFile = ROOT.TFile.Open(fileName)
@@ -169,26 +181,27 @@ for fileName, pathSplitList in sourceList:
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
     dirList.sort()
-    # Separator if there is many Files
-    if len(sourceList) > 1 and not first_round_file: print("")
-    else: first_round_file = False
-    # Paths of file and object
-    if len(sourceList) > 1: print("{0} :".format(fileName))
-    if keyList != []: not_dir_objects_first = True
+
+    # Paths of file
+    if len(sourceList) > 1: write("{0} :".format(fileName)+"\n")
+
     # Print with the rools style
-    roolsPrint(keyList,optDict)
+    roolsPrint(keyList,optDict,indentLevel)
+
+    # Initialize indent directory level
+    if len(pathSplitList) > 1: indentDirLevel = 2
+    else : indentDirLevel = 0
+
     # Loop on the directories
-    first_round_directory = True
     for pathSplit in dirList:
         keyList = getKeyList(rootFile,pathSplit)
         keyList.sort()
-        # Separator if there is many Files
-        if (len(pathSplitList) > 1 and not first_round_directory) \
-           or not_dir_objects_first: print("")
-        not_dir_objects_first = False
-        first_round_directory = False
-        # Paths of file and object
-        if len(pathSplitList) > 1: print("{0} :".format("/".join(pathSplit)))
+
+        # Paths of object
+        if len(pathSplitList) > 1:
+            write("{0} :".format("/".join(pathSplit))+"\n",indentLevel)
+
         # Print with the rools style
-        roolsPrint(keyList,optDict)
+        roolsPrint(keyList,optDict,indentLevel + indentDirLevel)
+
     rootFile.Close()
