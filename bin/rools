@@ -7,6 +7,7 @@ from cmdLineHelps import *
 
 ANSI_BOLD = "\x1B[1m"
 ANSI_BLUE = "\x1B[34m"
+ANSI_GREEN = "\x1B[32m"
 ANSI_END = "\x1B[0m"
 
 def colorInBold(string):
@@ -21,10 +22,13 @@ def colorInBlue(string):
     if sys.stdout.isatty(): return ANSI_BLUE+string+ANSI_END
     else: return string
 
+def colorInGreen(string):
+    """Color the string in green"""
+    # if the output is the terminal
+    if sys.stdout.isatty(): return ANSI_GREEN+string+ANSI_END
+    else: return string
+
 TREE_TEMPLATE = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"
-LONG_TEMPLATE = \
-    colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}" + \
-    "{2:{nameWidth}}{3:{titleWidth}}"
 
 def recursifTreePrinter(tree,indentLevel):
     """Print recursively tree informations"""
@@ -42,22 +46,9 @@ def recursifTreePrinter(tree,indentLevel):
             [branch.GetName(), \
             "\""+branch.GetTitle()+"\"", \
             str(branch.GetTotBytes())]
-        print "  "*indentLevel + treeTemplate.format(*rec,**dic)
+        print "  "*indentLevel + TREE_TEMPLATE.format(*rec,**dic)
         # if indentLevel < optDict["deeper_level"]: to keep in mind
         recursifTreePrinter(branch,indentLevel+1)
-
-#def pprint_tree_ls(keyList):
-#    """Function to print contents of trees"""
-#    for key in keyList:
-#        if isTree(key):
-#            tree = key.ReadObj()
-#            rec = [tree.GetName(), \
-#               "\""+tree.GetTitle()+"\"", \
-#               str(tree.GetTotBytes())]
-#            dic = {"name_width":len(tree.GetName())+2, \
-#                   "title_width":len(tree.GetTitle())+4,"memory_width":1}
-#            print tree_template.format(*rec,**dic)
-#            recursif(tree,1)
 
 def prepareTime(time):
     """Get time in the proper shape
@@ -70,6 +61,10 @@ def prepareTime(time):
 
 MONTH = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun', \
          7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
+
+LONG_TEMPLATE = \
+    colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}" + \
+    "{2:{nameWidth}}{3:{titleWidth}}"
 
 def roolsPrintLongLs(keyList,optDict):
     """Print a list of Tkey in columns
@@ -95,55 +90,63 @@ def roolsPrintLongLs(keyList,optDict):
             key.GetName(), \
             "\""+key.GetTitle()+"\""]
         print LONG_TEMPLATE.format(*rec,**dic)
-        if optDict['t'] and isTree(key):
+        if optDict['tree'] and isTree(key):
             tree = key.ReadObj()
             recursifTreePrinter(tree,1)
 
-def roolsPrintLs(input_list):
-    """Print list of strings in columns"""
+def roolsPrintSimpleLs(keyList):
+    """Print list of strings in columns
+    - blue for directories
+    - green for trees"""
     # This code is adaptated from the pprint_list function here :
     # http://stackoverflow.com/questions/25026556/output-list-like-ls
     # Thanks hawkjo !!
-    if len(input_list) == 0: return
+    if len(keyList) == 0: return
     (term_width, term_height) = getTerminalSize()
     min_chars_between = 2
-    min_element_width = min( len(x) for x in input_list ) + min_chars_between
-    max_element_width = max( len(x) for x in input_list ) + min_chars_between
-    if max_element_width >= term_width:
-        ncol = 1
-        col_widths = [1]
+    min_element_width = min( len(key.GetName()) for key in keyList ) \
+                        + min_chars_between
+    max_element_width = max( len(key.GetName()) for key in keyList ) \
+                        + min_chars_between
+    if max_element_width >= term_width: ncol,col_widths = 1,[1]
     else:
         # Start with max possible number of columns and reduce until it fits
-        ncol = min( len(input_list), term_width / min_element_width  )
+        ncol = min( len(keyList), term_width / min_element_width  )
         while True:
             col_widths = \
-                [ max( len(x) + min_chars_between \
-                for j, x in enumerate( input_list ) if j % ncol == i ) \
+                [ max( len(key.GetName()) + min_chars_between \
+                for j, key in enumerate(keyList) if j % ncol == i ) \
                 for i in range(ncol) ]
             if sum( col_widths ) <= term_width: break
             else: ncol -= 1
-    for i, x in enumerate(input_list):
-        if i != len(input_list)-1: # Don't add spaces after the last print
-            sys.stdout.write(x.ljust(col_widths[i%ncol]))
-        else:
-            sys.stdout.write(x)
-        if i == len(input_list) - 1 or (i+1) % ncol == 0:
-            sys.stdout.write('\n')
+    for i, key in enumerate(keyList):
+        if i != len(keyList)-1: # Don't add spaces after the last print
+            if not sys.stdout.isatty(): sys.stdout.write( \
+                key.GetName().ljust(col_widths[i%ncol]))
+            elif isDirectory(keyList[i]): sys.stdout.write( \
+                colorInBlue(key.GetName()).ljust(col_widths[i%ncol] + 9))
+                # len(ANSI_BLUE+ANSI_END) = len("\x1B[34m"+"\x1B[0m") = 9
+            elif isTree(keyList[i]): sys.stdout.write( \
+                colorInGreen(key.GetName()).ljust(col_widths[i%ncol] + 9))
+                # len(ANSI_GREEN+ANSI_END) = len("\x1B[32m"+"\x1B[0m") = 9
+            else: sys.stdout.write(key.GetName().ljust(col_widths[i%ncol]))
+        else: sys.stdout.write(key.GetName())
+        if i == len(keyList)-1 or (i+1)%ncol == 0: sys.stdout.write('\n')
 
 def roolsPrint(keyList,optDict):
     """Print informations given by keyList with a rools
     style choosen with optDict"""
-    if optDict['l']: roolsPrintLongLs(keyList,optDict)
-    else: roolsPrintLs([key.GetName() for key in keyList])
+    if optDict['long'] or optDict['tree']: roolsPrintLongLs(keyList,optDict)
+    else: roolsPrintSimpleLs(keyList)
     # Don't forget color and bold, make a different function
 
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOLS_HELP)
-parser.add_argument("sourcePatternList", help=ARG_HELP, nargs='+')
-parser.add_argument("-l", help=LONG_PRINT_HELP, action="store_true")
-parser.add_argument("-t", help=TREE_PRINT_HELP, action="store_true")
+parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
+parser.add_argument("-l", "--long", help=LONG_PRINT_HELP, action="store_true")
+parser.add_argument("-t", "--tree", help=TREE_PRINT_HELP, action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names

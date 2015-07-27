@@ -148,16 +148,16 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
                            destFile,destPathSplit+[key.GetName()])
         elif (cl.InheritsFrom(ROOT.TTree.Class())):
             changeDirectory(sourceFile,sourcePathSplit[:-1])
-            print "problem with cycles, don't forget to look at it..."
-            T = ROOT.gDirectory.Get(key.GetName()+";1")
+            T = ROOT.gDirectory.Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
             newT = T.CloneTree(-1,"fast")
             newT.Write()
         else:
             obj = key.ReadObj()
             changeDirectory(destFile,destPathSplit)
-            if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
-                ROOT.gDirectory.Delete(obj.GetName()+";*")
+            # Option replace ?
+            #if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
+            #    ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()
             del obj
     changeDirectory(destFile,destPathSplit)

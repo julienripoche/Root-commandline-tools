@@ -12,7 +12,7 @@ extensionList = ["ps","Portrait","Landscape","eps","Preview", \
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOPRINT_HELP)
-parser.add_argument("sourcePatternList", help=ARG_HELP, nargs='+')
+parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
 parser.add_argument("-d", "--directory", help=DIRECTORY_HELP)
 parser.add_argument("-m", "--merge", help=MERGE_HELP)
 parser.add_argument("-e", "--extension", help=EXTENSION_HELP)

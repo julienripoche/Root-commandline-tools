@@ -33,8 +33,8 @@ def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOEVENTSELECTOR_HELP)
-parser.add_argument("sourcePatternList", help=ARG_HELP, nargs='+')
-parser.add_argument("destPattern", help=ARG_HELP)
+parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
+parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
 parser.add_argument("-r","--recreate", help=RECREATE_HELP, action="store_true")
 parser.add_argument("-f","--first", type=int, help=FIRST_EVENT_HELP)

@@ -10,7 +10,7 @@ from cmdLineHelps import *
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROORM_HELP)
-parser.add_argument("sourcePatternList", help=ARG_HELP,  nargs='+')
+parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
 parser.add_argument("-f", "--force", help=FORCE_HELP, action="store_true")
 args = parser.parse_args()
 

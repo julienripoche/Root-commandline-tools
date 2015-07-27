@@ -2,12 +2,15 @@
 
 """Contain help strings for ROOT commandlines tools"""
 
-ARG_HELP = \
-    "file path and object path in the file :" + \
+SOURCE_HELP = \
+    "Path of the source(s), syntax :" + \
+    "[filePath/]file[.root]:[objectPath/]object"
+DEST_HELP = \
+    "Path of the destination, syntax :" + \
     "[filePath/]file[.root]:[objectPath/]object"
 
 ROOBROWSE_HELP = \
-    "..."
+    "Open the ROOT file on a TBrowser"
 ROOEVENTSELECTOR_HELP = \
     "Copy subsets of trees from source ROOT files" + \
     "to new trees on a destination ROOT file"
@@ -25,24 +28,26 @@ ROORM_HELP = \
     "Remove objects from ROOT files"
 
 COMPRESS_HELP = \
-    "change the compression settings of the destination file"
+    "Change the compression settings of the destination file"
 DIRECTORY_HELP = \
-    "put output files in a subdirectory named 'directory'"
+    "Put output files in a subdirectory named 'directory'"
 EXTENSION_HELP = \
-    "extension of the output (ex: pdf, png)"
+    "Specify output extension (ex: pdf, png)"
 FIRST_EVENT_HELP = \
-    "first event to copy"
+    "Specify the first event to copy"
 FORCE_HELP = \
-    "force the removing"
+    "Force the removing"
 LAST_EVENT_HELP = \
-    "last event to copy"
+    "Specify the last event to copy"
 LONG_PRINT_HELP = \
-    "use a long listing format"
+    "Use a long listing format" + \
+    "LONG_TEMPLATE = class time name title"
 MERGE_HELP = \
-    "merge files in a file named 'merge' (only for ps and pdf)"
+    "Merge files in a file named 'merge' (only for ps and pdf)"
 PARENT_HELP = \
-    "no error if existing, make parent directories as needed"
+    "Make parent directories as needed, no error if existing"
 RECREATE_HELP = \
-    "recreate the destination file"
+    "Recreate the destination file"
 TREE_PRINT_HELP = \
-    "tree recursive print (with -l option)"
+    "Print tree recursively and use a long listing format (-l option)" + \
+    "TREE_TEMPLATE : name title totBytes"
