@@ -59,7 +59,7 @@ def isTree(rootFile,pathSplit):
     """Return True if the object, corresponding to (rootFile,pathSplit),
     inherits from TTree, False if not"""
     if pathSplit == []: return False # the object is the rootFile itself
-    else: return isTree(getKey(rootFile,pathSplit))
+    else: return isTreeKey(getKey(rootFile,pathSplit))
 
 def getKeyList(rootFile,pathSplit):
     """Get the list of key of the directory (rootFile,pathSplit),
