@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to ..."""
+"""Commandline to open a ROOT file on a TBrowser"""
 
 from cmdLineUtils import *
 from cmdLineHelps import *

@@ -27,7 +27,7 @@ def colorInGreen(string):
 
 TREE_TEMPLATE = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"
 
-def recursifTreePrinter(tree,indentLevel):
+def recursifTreePrinter(tree,indent):
     """Print recursively tree informations"""
     if len(tree.GetListOfBranches()) > 0: # Width informations
         maxCharName = max([len(branch.GetName()) \
@@ -43,9 +43,9 @@ def recursifTreePrinter(tree,indentLevel):
             [branch.GetName(), \
             "\""+branch.GetTitle()+"\"", \
             str(branch.GetTotBytes())]
-        print "  "*indentLevel + TREE_TEMPLATE.format(*rec,**dic)
+        print " "*indent + TREE_TEMPLATE.format(*rec,**dic)
         # if indentLevel < optDict["deeper_level"]: to keep in mind
-        recursifTreePrinter(branch,indentLevel+1)
+        recursifTreePrinter(branch,indent+2)
 
 def prepareTime(time):
     """Get time in the proper shape
@@ -89,7 +89,7 @@ def roolsPrintLongLs(keyList,optDict,indent):
         print LONG_TEMPLATE_INDENTED.format(*rec,**dic)
         if optDict['tree'] and isTreeKey(key):
             tree = key.ReadObj()
-            recursifTreePrinter(tree,1)
+            recursifTreePrinter(tree,indent+2)
 
 def write(string, indent=0):
     """Use sys.stdout.write to write the string
@@ -169,8 +169,8 @@ optDict = vars(args)
 del optDict["sourcePatternList"]
 
 # Initialize indent level
-if len(sourceList) > 1: indentLevel = 2
-else : indentLevel = 0
+if len(sourceList) > 1: indent = 2
+else : indent = 0
 
 # Loop on the ROOT files
 first_round_file = True
@@ -186,11 +186,11 @@ for fileName, pathSplitList in sourceList:
     if len(sourceList) > 1: write("{0} :".format(fileName)+"\n")
 
     # Print with the rools style
-    roolsPrint(keyList,optDict,indentLevel)
+    roolsPrint(keyList,optDict,indent)
 
     # Initialize indent directory level
-    if len(pathSplitList) > 1: indentDirLevel = 2
-    else : indentDirLevel = 0
+    if len(pathSplitList) > 1: indentDir = 2
+    else : indentDir = 0
 
     # Loop on the directories
     for pathSplit in dirList:
@@ -199,9 +199,9 @@ for fileName, pathSplitList in sourceList:
 
         # Paths of object
         if len(pathSplitList) > 1:
-            write("{0} :".format("/".join(pathSplit))+"\n",indentLevel)
+            write("{0} :".format("/".join(pathSplit))+"\n",indent)
 
         # Print with the rools style
-        roolsPrint(keyList,optDict,indentLevel + indentDirLevel)
+        roolsPrint(keyList,optDict,indent+indentDir)
 
     rootFile.Close()

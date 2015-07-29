@@ -3,21 +3,21 @@
 """Contain help strings for ROOT commandlines tools"""
 
 SOURCE_HELP = \
-    "Path of the source(s), syntax :" + \
+    "Path of the source(s),syntax: " + \
     "[filePath/]file[.root]:[objectPath/]object"
 DEST_HELP = \
-    "Path of the destination, syntax :" + \
+    "Path of the destination,syntax: " + \
     "[filePath/]file[.root]:[objectPath/]object"
 
 ROOBROWSE_HELP = \
-    "Open the ROOT file on a TBrowser"
+    "Open a ROOT file on a TBrowser"
 ROOEVENTSELECTOR_HELP = \
-    "Copy subsets of trees from source ROOT files" + \
+    "Copy subsets of trees from source ROOT files " + \
     "to new trees on a destination ROOT file"
 ROOCP_HELP = \
     "Copy objects from ROOT files into an other"
 ROOLS_HELP = \
-    "Dump ROOT files contents to terminal"
+    "Print the content of a root file or subdirectory"
 ROOMKDIR_HELP = \
     "Add directories in a ROOT files"
 ROOMV_HELP = \
@@ -40,7 +40,7 @@ FORCE_HELP = \
 LAST_EVENT_HELP = \
     "Specify the last event to copy"
 LONG_PRINT_HELP = \
-    "Use a long listing format" + \
+    "Use a long listing format : " + \
     "LONG_TEMPLATE = class time name title"
 MERGE_HELP = \
     "Merge files in a file named 'merge' (only for ps and pdf)"
@@ -49,5 +49,5 @@ PARENT_HELP = \
 RECREATE_HELP = \
     "Recreate the destination file"
 TREE_PRINT_HELP = \
-    "Print tree recursively and use a long listing format (-l option)" + \
-    "TREE_TEMPLATE : name title totBytes"
+    "Print tree recursively and use a long listing format " + \
+    "(-l option) : TREE_TEMPLATE = name title totBytes"

@@ -5,22 +5,25 @@ and to act on root file contents directly from a unix terminal.
 
 ## Short description
 
-    o rools:    Print the content of a root file or subdirectory (like ls)
-                -l option exists (like with ls) and give access to class,
-                datime, name and title of an object
+    o rools:      Print the content of a root file or subdirectory (like ls)
+                  -l option exists (like with ls) and give access to class,
+                  datime, name and title of an object
 
-    o roocp:    Copy an object from a root file to another
+    o roocp:      Copy objects from ROOT files into an other
 
-    o roorm:    Remove an object from a root file
-                -f option exists to force the removing
+    o roorm:      Remove objects from ROOT files
+                  -f option exists to force the removing
 
-    o roomv:    Move an object from a root file to another
+    o roomv:      Move objects from ROOT files to an other
 
-    o roomkdir: Create a directory in a root file
+    o roomkdir:   Add directories in a ROOT files
 
-    o rooprint: Put histograms and graphs in pdf file
-                -o option exists and allows to put all the histograms
-                and graphs in the same pdf file
+    o rooprint:   Print ROOT files contents on ps,pdf or png,gif.. files
+
+    o rooeventselector : Copy subsets of trees from source ROOT files
+                         to new trees on a destination ROOT file
+
+    o roobrowse : Open a ROOT file on a TBrowser
 
 ## Some examples
 
