@@ -1,0 +1,52 @@
+.\"
+.\" $Id: rools.1
+.\"
+.TH ROOLS 1 "Version 6" "ROOT"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+
+.SH NAME
+rools \- Command line to display ROOT files contents in the terminal
+
+.SH SYNOPSIS
+\fBrools\fR [\fIOPTION\fR]... [\fIFILE:OBJECT\fR]...
+
+.SH "DESCRIPTION"
+\fBrools\fR is one of the ROOT commandline tools. These commandlines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+.PP
+\fBrools\fR is used to display ROOT files contents in the terminal. It supports regular expressions. See the section example for the syntax.
+
+.SH OPTIONS
+.TP
+.B -h
+Show summary of options.
+.TP
+.B \-l ", " \-\-long
+Use a long listing format.
+.TP
+.B \-t ", " \-\-tree
+Use a long listing format and print trees recursively.
+
+.SH EXAMPLES
+.B rools example.root
+.PP
+Display contents of the ROOT file 'example.root'.
+.PP
+.B rools example.root:dir
+.PP
+Display contents of the directory 'dir' from the ROOT file 'example.root'.
+.PP
+.B rools example.root:*
+.PP
+Display contents of the ROOT file 'example.root' and his subdirectories.
+.PP
+.B rools -l example.root
+.PP
+Display contents of the ROOT file 'example.root' and use a long listing format.
+.PP
+.B rools -t example.root
+.PP
+Display contents of the ROOT file 'example.root', use a long listing format and print trees recursively.
+
+.SH AUTHOR
+This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.

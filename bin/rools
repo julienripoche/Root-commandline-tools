@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to dump ROOT files contents to terminal"""
+"""Command line to dump ROOT files contents to terminal"""
 
 from cmdLineUtils import *
 from cmdLineHelps import *

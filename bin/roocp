@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to copy objects
+"""Command line to copy objects
 from ROOT files into an other"""
 
 from cmdLineUtils import *
@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description=ROOCP_HELP)
 parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
-parser.add_argument("-r","--recreate", help=RECREATE_HELP, action="store_true")
+parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names

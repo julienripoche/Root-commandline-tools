@@ -177,9 +177,9 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
 
 def deleteRootObject(rootFile,pathSplit,optDict):
     """Remove the object (rootFile,pathSplit)
-    - option force to avoid the confirmation"""
+    -i prompt before every removal"""
     answer = 'y'
-    if not optDict['force']: answer = \
+    if optDict['i']: answer = \
        raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
                  .format("/".join(pathSplit),rootFile.GetName())) \
        if pathSplit != [] else \

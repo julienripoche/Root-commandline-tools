@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to print ROOT files contents on ps,pdf or png,gif.. files"""
+"""Command line to print ROOT files contents on ps,pdf or png,gif..."""
 
 from cmdLineUtils import *
 from cmdLineHelps import *

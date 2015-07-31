@@ -81,17 +81,17 @@ else:
 
 ############################## ROORM TESTS ##############################
 os.system("cp test.root victim.root")
-testCommand("SimpleRoorm", "roorm -f victim.root:hpx && rools victim.root", "SimpleRoorm.ref")
+testCommand("SimpleRoorm", "roorm victim.root:hpx && rools victim.root", "SimpleRoorm.ref")
 if os.path.isfile("victim.root"):
     os.system("rm victim.root")
 os.system("cp test.root victim.root")
-testCommand("SimpleRoorm2", "roorm -f victim.root:tof/plane0 && rools victim.root:tof", "SimpleRoorm2.ref")
+testCommand("SimpleRoorm2", "roorm victim.root:tof/plane0 && rools victim.root:tof", "SimpleRoorm2.ref")
 if os.path.isfile("victim.root"):
     os.system("rm victim.root")
 print "Test SimpleRoorm3",
 test_nb += 1
 os.system("cp test.root victim.root")
-os.system("roorm -f victim.root")
+os.system("roorm victim.root")
 if not os.path.isfile("victim.root"):
     print "SUCCESS"
 else:

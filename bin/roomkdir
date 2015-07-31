@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to add directories in ROOT files"""
+"""Command line to add directories in ROOT files"""
 
 from cmdLineUtils import *
 from cmdLineHelps import *

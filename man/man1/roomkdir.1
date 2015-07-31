@@ -1,0 +1,45 @@
+.\"
+.\" $Id: roomkdir.1
+.\"
+.TH ROOMKDIR 1 "Version 6" "ROOT"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+
+.SH NAME
+roomkdir \- Command line to add directories in ROOT files
+
+.SH SYNOPSIS
+\fBroomkdir\fR [\fIOPTION\fR]... [\fIFILE:OBJECT\fR]...
+
+.SH "DESCRIPTION"
+\fBroomkdir\fR is one of the ROOT commandline tools. These commandlines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+.PP
+\fBroomkdir\fR is used to add directories in ROOT files. ROOT files are created if not already exist and updated else. See the section example for the syntax.
+
+.SH OPTIONS
+.TP
+.B -h
+Show summary of options.
+.TP
+.B \-p ", " \-\-parents
+Make parent directories as needed, no error if existing.
+
+.SH EXAMPLES
+.B roomkdir example.root:dir
+.PP
+Add the directory 'dir' to the ROOT file 'example.root'.
+.PP
+.B roomkdir example.root:dir1/dir2
+.PP
+Add the directory 'dir2' in 'dir1' which is into the ROOT file 'example.root'.
+.PP
+.B roomkdir -p example.root:dir1/dir2/dir3
+.PP
+Make parent directories of 'dir3' as needed, no error if existing.
+.PP
+.B roomkdir example.root
+.PP
+Create an empty ROOT file named 'example.root' (equivalent of touch command).
+
+.SH AUTHOR
+This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.

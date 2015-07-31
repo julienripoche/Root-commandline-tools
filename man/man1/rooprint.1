@@ -1,0 +1,51 @@
+.\"
+.\" $Id: rooprint.1
+.\"
+.TH ROOPRINT 1 "Version 6" "ROOT"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+
+.SH NAME
+rooprint \- Command line to print ROOT files contents as postscript, pdf or pictures
+
+.SH SYNOPSIS
+\fBrooprint\fR [\fIOPTION\fR]... [\fIFILE:OBJECT\fR]...
+
+.SH "DESCRIPTION"
+\fBrooprint\fR is one of the ROOT commandline tools. These commandlines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+.PP
+\fBrooprint\fR is used to print ROOT files contents as postscript, pdf or pictures. It supports regular expressions. See the section example for the syntax.
+
+.SH OPTIONS
+.TP
+.B -h
+Show summary of options.
+.TP
+.B \-d " " \fIDIRECTORY\fR ", " \-\-directory " " \fIDIRECTORY\fR
+Put output files in a subdirectory named \fIDIRECTORY\fR.
+.TP
+.B \-e " " \fIEXTENSION\fR ", " \-\-extension " " \fIEXTENSION\fR
+Specify output extension \fIEXTENSION\fR (such as 'ps', 'Portrait', 'Landscape', 'eps', 'Preview', 'pdf', 'svg', 'tex', 'gif', 'xpm', 'png', 'jpg'), pdf by default.
+.TP
+.B \-m " " \fIMERGE\fR ", " \-\-merge " " \fIMERGE\fR
+Merge files in a file named \fIMERGE\fR (only for ps and pdf).
+
+.SH EXAMPLES
+.B rooprint example.root:hist
+.PP
+Create a pdf file named 'hist.pdf' which contain the histogram 'hist'.
+.PP
+.B rooprint -d histograms example.root:hist
+.PP
+Create a pdf file named 'hist.pdf' which contain the histogram 'hist' and put it in the directory 'histograms' (create it if not already exists).
+.PP
+.B rooprint -e png example.root:hist
+.PP
+Create a png file named 'hist.png' which contain the histogram 'hist'.
+.PP
+.B rooprint -m histograms.pdf example.root:hist*
+.PP
+Create a pdf file named 'histograms.pdf' which contain all histograms whose name starts with 'hist'. It works also with postscript.
+
+.SH AUTHOR
+This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to remove
+"""Command line to remove
 objects from ROOT files"""
 
 from cmdLineUtils import *
@@ -11,7 +11,7 @@ from cmdLineHelps import *
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROORM_HELP)
 parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
-parser.add_argument("-f", "--force", help=FORCE_HELP, action="store_true")
+parser.add_argument("-i", help=I_HELP, action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names

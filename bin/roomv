@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Commandline to move objects
+"""Command line to move objects
 from ROOT files to an other"""
 
 from cmdLineUtils import *
@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description=ROOMV_HELP)
 parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
-parser.add_argument("-r","--recreate", help=RECREATE_HELP, action="store_true")
+parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names
@@ -50,7 +50,7 @@ for sourceFileName, sourcePathSplitList in sourceList:
         destFile
     for sourcePathSplit in sourcePathSplitList:
         copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit)
-        deleteRootObject(sourceFile,sourcePathSplit,{'force':True})
+        deleteRootObject(sourceFile,sourcePathSplit,{'i':False})
     if sourceFileName != destFileName:
         sourceFile.Close()
 destFile.Close()

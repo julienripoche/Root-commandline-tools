@@ -1,0 +1,58 @@
+.\"
+.\" $Id: rooeventselector.1
+.\"
+.TH ROOEVENTSELECTOR 1 "Version 6" "ROOT"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+
+.SH NAME
+rooeventselector\- Command line to copy subsets of trees from source ROOT files to new trees on a destination ROOT file
+
+.SH SYNOPSIS
+\fBrooeventselector\fR [\fIOPTION\fR]... [\fISOURCEFILE:OBJECT\fR]... [\fIDESTFILE:DIRECTORY\fR]
+
+.SH "DESCRIPTION"
+\fBrooeventselector\fR is one of the ROOT commandline tools. These commandlines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+.PP
+\fBrooeventselector\fR is used to copy subsets of trees from source ROOT files to new trees on a destination ROOT file. By default the destination file is created if not already exists and updated else. To recreate the destination file, see the option \-\-recreate. It supports regular expressions. See the section example for the syntax.
+
+.SH OPTIONS
+.TP
+.B -h
+Show summary of options.
+.TP
+.BR \-c " " \fICOMPRESS\fR ", " \-\-compress " " \fICOMPRESS\fR
+Change the compression settings of the destination file.
+.TP
+.BR \-\-recreate
+Recreate the destination file.
+.TP
+.BR \-f " " \fIFIRST\fR ", " \-\-first " " \fIFIRST\fR
+Specify the first event to copy.
+.TP
+.BR \-l " " \fILAST\fR ", " \-\-last " " \fILAST\fR
+Specify the last event to copy.
+
+.SH EXAMPLES
+.B rooeventselector source.root:tree dest.root
+.PP
+Copy the tree named 'tree' from 'source.root' to 'dest.root'.
+.PP
+.B rooeventselector -f 101 source.root:tree dest.root
+.PP
+Copy a subset of the tree named 'tree' from 'source.root' to 'dest.root'. The new tree contains events from the old tree except the first hundred.
+.PP
+.B rooeventselector -l 100 source.root:tree dest.root
+.PP
+Copy a subset of the tree named 'tree' from 'source.root' to 'dest.root'. The new tree contains the first hundred events from the old tree.
+.PP
+.B rooeventselector --recreate source.root:tree dest.root
+.PP
+Recreate the destination file 'dest.root' and copy the tree named 'tree' from 'source.root' to 'dest.root'.
+.PP
+.B rooeventselector -c 1 source.root:tree dest.root
+.PP
+Change the compression settings of the destination file 'dest.root' and  copy the tree named 'tree' from 'source.root' to 'dest.root'. For more information about compression settings of ROOT file, please look at the reference guide available on the ROOT site.
+
+.SH AUTHOR
+This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.

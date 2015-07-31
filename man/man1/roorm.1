@@ -1,0 +1,45 @@
+.\"
+.\" $Id: roorm.1
+.\"
+.TH ROORM 1 "Version 6" "ROOT"
+.\" NAME should be all caps, SECTION should be 1-8, maybe w/ subsection
+.\" other parms are allowed: see man(7), man(1)
+
+.SH NAME
+roorm \- Command line to remove objects from ROOT files
+
+.SH SYNOPSIS
+\fBroorm\fR [\fIOPTION\fR]... [\fIFILE:OBJECT\fR]...
+
+.SH "DESCRIPTION"
+\fBroorm\fR is one of the ROOT commandline tools. These commandlines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+.PP
+\fBroorm\fR is used to remove objects from ROOT files. It supports regular expressions. Note that this command does not free the corresponding memory space in ROOT files. See the section example for the syntax.
+
+.SH OPTIONS
+.TP
+.B -h
+Show summary of options.
+.TP
+.B -i
+Displays a confirmation request before deleting.
+
+.SH EXAMPLES
+.B roorm example.root:hist
+.PP
+Remove the histogram named 'hist' from the ROOT file named 'example.root'.
+.PP
+.B roorm example.root:dir/hist
+.PP
+Remove the histogram named 'hist' from the direcory named 'dir' inside the ROOT file named 'example.root'.
+.PP
+.B roorm example.root
+.PP
+Remove the ROOT file named 'example.root' (it uses directly the command rm).
+.PP
+.B roorm -i example.root:hist
+.PP
+Displays a confirmation request before deleting : 'Are you sure to remove 'hist' from 'example.root' ? (y/n) :'.
+
+.SH AUTHOR
+This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.

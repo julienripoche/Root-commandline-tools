@@ -17,7 +17,7 @@ ROOEVENTSELECTOR_HELP = \
 ROOCP_HELP = \
     "Copy objects from ROOT files into an other"
 ROOLS_HELP = \
-    "Print the content of a root file or subdirectory"
+    "Display ROOT files contents in the terminal"
 ROOMKDIR_HELP = \
     "Add directories in a ROOT files"
 ROOMV_HELP = \
@@ -26,6 +26,8 @@ ROOPRINT_HELP = \
     "Print ROOT files contents on ps,pdf or png,gif.. files"
 ROORM_HELP = \
     "Remove objects from ROOT files"
+ROOMERGE_HELP = \
+    "merge ROOT files in one single file"
 
 COMPRESS_HELP = \
     "Change the compression settings of the destination file"
@@ -35,8 +37,8 @@ EXTENSION_HELP = \
     "Specify output extension (ex: pdf, png)"
 FIRST_EVENT_HELP = \
     "Specify the first event to copy"
-FORCE_HELP = \
-    "Force the removing"
+I_HELP = \
+    "Prompt before every removal"
 LAST_EVENT_HELP = \
     "Specify the last event to copy"
 LONG_PRINT_HELP = \
@@ -44,6 +46,8 @@ LONG_PRINT_HELP = \
     "LONG_TEMPLATE = class time name title"
 MERGE_HELP = \
     "Merge files in a file named 'merge' (only for ps and pdf)"
+OUTPUT_HELP = \
+    "Merge files in a file named 'output'"
 PARENT_HELP = \
     "Make parent directories as needed, no error if existing"
 RECREATE_HELP = \
