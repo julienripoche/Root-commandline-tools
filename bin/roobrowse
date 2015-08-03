@@ -9,12 +9,15 @@ from cmdLineHelps import *
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOBROWSE_HELP)
-parser.add_argument("sourceName", help=SOURCE_HELP)
+parser.add_argument("sourceName", nargs='?', help=SOURCE_HELP)
 args = parser.parse_args()
 
-# Open TBrowser
-with stderrRedirected():
-    rootFile = ROOT.TFile.Open(args.sourceName)
-rootFile.Browse(ROOT.TBrowser())
-ROOT.PyROOT.TPyROOTApplication.Run(ROOT.gApplication)
-rootFile.Close()
+if args.sourceName:
+    with stderrRedirected():
+        rootFile = ROOT.TFile.Open(args.sourceName)
+    rootFile.Browse(ROOT.TBrowser())
+    ROOT.PyROOT.TPyROOTApplication.Run(ROOT.gApplication)
+    rootFile.Close()
+else :
+    browser = ROOT.TBrowser()
+    ROOT.PyROOT.TPyROOTApplication.Run(ROOT.gApplication)
