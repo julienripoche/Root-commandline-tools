@@ -10,7 +10,7 @@ from cmdLineHelps import *
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOCP_HELP)
-parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
+parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
 parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")

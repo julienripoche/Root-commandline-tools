@@ -3,55 +3,59 @@
 """Contain help strings for ROOT commandlines tools"""
 
 SOURCE_HELP = \
-    "Path of the source(s),syntax: " + \
-    "[filePath/]file[.root]:[objectPath/]object"
+    "path of the source."
+SOURCES_HELP = \
+    "path of the source(s)."
 DEST_HELP = \
-    "Path of the destination,syntax: " + \
-    "[filePath/]file[.root]:[objectPath/]object"
+    "path of the destination."
 
 ROOBROWSE_HELP = \
-    "Open a ROOT file on a TBrowser"
+    "Open a ROOT file on a TBrowser " + \
+    "(for more informations please look at the man page)."
 ROOEVENTSELECTOR_HELP = \
     "Copy subsets of trees from source ROOT files " + \
-    "to new trees on a destination ROOT file"
+    "to new trees on a destination ROOT file " + \
+    "(for more informations please look at the man page)."
 ROOCP_HELP = \
-    "Copy objects from ROOT files into an other"
+    "Copy objects from ROOT files into an other " + \
+    "(for more informations please look at the man page)."
 ROOLS_HELP = \
-    "Display ROOT files contents in the terminal"
+    "Display ROOT files contents in the terminal " + \
+    "(for more informations please look at the man page)."
 ROOMKDIR_HELP = \
-    "Add directories in a ROOT files"
+    "Add directories in a ROOT files " + \
+    "(for more informations please look at the man page)."
 ROOMV_HELP = \
-    "Move objects from ROOT files to an other"
+    "Move objects from ROOT files to an other " + \
+    "(for more informations please look at the man page)."
 ROOPRINT_HELP = \
-    "Print ROOT files contents on ps,pdf or png,gif.. files"
+    "Print ROOT files contents on ps,pdf or pictures files " + \
+    "(for more informations please look at the man page)."
 ROORM_HELP = \
-    "Remove objects from ROOT files"
-ROOMERGE_HELP = \
-    "merge ROOT files in one single file"
+    "Remove objects from ROOT files " + \
+    "(for more informations please look at the man page)."
 
 COMPRESS_HELP = \
-    "Change the compression settings of the destination file"
+    "change the compression settings of the destination file."
 DIRECTORY_HELP = \
-    "Put output files in a subdirectory named 'directory'"
+    "put output files in a subdirectory named DIRECTORY."
 EXTENSION_HELP = \
-    "Specify output extension (ex: pdf, png)"
+    "specify output extension (ex: pdf, png)."
 FIRST_EVENT_HELP = \
-    "Specify the first event to copy"
+    "specify the first event to copy."
 I_HELP = \
-    "Prompt before every removal"
+    "prompt before every removal."
 LAST_EVENT_HELP = \
-    "Specify the last event to copy"
+    "specify the last event to copy."
 LONG_PRINT_HELP = \
-    "Use a long listing format : " + \
-    "LONG_TEMPLATE = class time name title"
+    "use a long listing format."
 MERGE_HELP = \
-    "Merge files in a file named 'merge' (only for ps and pdf)"
+    "merge files in a file named MERGE (only for ps and pdf)."
 OUTPUT_HELP = \
-    "Merge files in a file named 'output'"
+    "merge files in a file named OUTPUT."
 PARENT_HELP = \
-    "Make parent directories as needed, no error if existing"
+    "make parent directories as needed, no error if existing."
 RECREATE_HELP = \
-    "Recreate the destination file"
+    "recreate the destination file."
 TREE_PRINT_HELP = \
-    "Print tree recursively and use a long listing format " + \
-    "(-l option) : TREE_TEMPLATE = name title totBytes"
+    "print tree recursively and use a long listing format."

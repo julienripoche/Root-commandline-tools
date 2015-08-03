@@ -33,7 +33,7 @@ def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOEVENTSELECTOR_HELP)
-parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
+parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
 parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")
@@ -69,7 +69,7 @@ if optDict["compress"]: destFile.SetCompressionSettings(optDict["compress"])
 
 # Loop on the root file
 for sourceFileName, sourcePathSplitList in sourceList:
-     with stderrRedirected(): sourceFile = \
+    with stderrRedirected(): sourceFile = \
         ROOT.TFile.Open(sourceFileName) \
         if sourceFileName != destFileName else \
         destFile

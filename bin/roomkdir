@@ -29,7 +29,7 @@ def createDirectories(rootFile,pathSplit,optDict):
 
 # Collect arguments with the module argparse
 parser = argparse.ArgumentParser(description=ROOMKDIR_HELP)
-parser.add_argument("sourcePatternList", help=SOURCE_HELP, nargs='+')
+parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-p", "--parents", help=PARENT_HELP, action="store_true")
 args = parser.parse_args()
 
