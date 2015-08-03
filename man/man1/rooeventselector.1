@@ -12,9 +12,15 @@ rooeventselector\- Command line to copy subsets of trees from source ROOT files 
 \fBrooeventselector\fR [\fIOPTION\fR]... [\fISOURCEFILE:OBJECT\fR]... [\fIDESTFILE:DIRECTORY\fR]
 
 .SH "DESCRIPTION"
-\fBrooeventselector\fR is one of the ROOT command line tools. These command lines are designed to access ROOT file contents without the need to write code. It uses the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to \fIhttp://root.cern.ch\fR.
+\fBrooeventselector\fR is one of the ROOT command line tools. These command lines are
+designed to access ROOT file contents without the need to write code. It uses
+the \fBROOT\fR framework. For more information on \fBROOT\fR, please refer to
+\fIhttp://root.cern.ch\fR.
 .PP
-\fBrooeventselector\fR is used to copy subsets of trees from source ROOT files to new trees on a destination ROOT file. By default the destination file is created if not already exists and updated else. To recreate the destination file, see the option \-\-recreate. It supports regular expressions. See the section example for the syntax.
+\fBrooeventselector\fR is used to copy subsets of trees from source ROOT files
+to new trees on a destination ROOT file. By default the destination file is created
+if doesn't already exist, otherwise it is updated. To recreate the destination file,
+see the option \-\-recreate. It supports regular expressions. See the section example for the syntax.
 
 .SH OPTIONS
 .TP
@@ -22,7 +28,10 @@ rooeventselector\- Command line to copy subsets of trees from source ROOT files 
 Show summary of options.
 .TP
 .BR \-c " " \fICOMPRESS\fR ", " \-\-compress " " \fICOMPRESS\fR
-Change the compression settings of the destination file.
+Change the compression level (from 0 to 9) of the destination file.
+   \fICOMPRESS\fR = 0, objects written to this file will not be compressed.
+   \fICOMPRESS\fR = 1, minimal compression level but fast.
+   \fICOMPRESS\fR = 9, maximal compression level but slow.
 .TP
 .BR \-\-recreate
 Recreate the destination file.
@@ -52,7 +61,7 @@ Recreate the destination file 'dest.root' and copy the tree named 'tree' from 's
 .PP
 .B rooeventselector -c 1 source.root:tree dest.root
 .PP
-Change the compression settings of the destination file 'dest.root' and  copy the tree named 'tree' from 'source.root' to 'dest.root'. For more information about compression settings of ROOT file, please look at the reference guide available on the ROOT site.
+Change the compression factor of the destination file 'dest.root' and  copy the tree named 'tree' from 'source.root' to 'dest.root'. For more information about compression settings of ROOT file, please look at the reference guide available on the ROOT site.
 
 .SH AUTHOR
 This manual page was written by Julien Ripoche <julien.ripoche@cern.ch>.
