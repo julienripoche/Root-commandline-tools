@@ -5,7 +5,6 @@
 # The code of the these functions can be found here : http://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python/22434262#22434262
 # Thanks J.F. Sebastian !!
 
-from __future__ import print_function
 from contextlib import contextmanager
 import os
 import sys
@@ -39,5 +38,12 @@ def stdoutRedirected(to=os.devnull, stdout=None):
             stdout.flush()
             os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
-def mergedStderrStdout():  # $ exec 2>&1
-    return stdoutRedirected(to=sys.stdout, stdout=sys.stderr)
+def stderrRedirected(to=os.devnull, stdout=sys.stderr):
+    return stdoutRedirected(to, stdout)
+
+#not on all version of python...
+#with stdoutRedirected(), mergedStderrStdout():
+    #...
+
+#def mergedStderrStdout():  # $ exec 2>&1
+#    return stdoutRedirected(to=sys.stdout, stdout=sys.stderr)

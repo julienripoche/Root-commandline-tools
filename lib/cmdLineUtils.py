@@ -4,7 +4,7 @@
 
 from redirectEscapeCharacters import *
 # redirect output (escape characters during ROOT importation...)
-with stdoutRedirected(to=os.devnull):
+with stdoutRedirected():
     import ROOT
 
 from getTerminalSize import *
@@ -88,7 +88,7 @@ def patternToPathSplitList(fileName,pattern):
     # whole ROOT file, so unnecessary to open it
     if patternSplit == []: return [[]]
     # redirect output (missing dictionary for class...)
-    with stdoutRedirected(to=os.devnull):
+    with stderrRedirected():
         rootFile = ROOT.TFile.Open(fileName)
     pathSplitList = [[]]
     for patternPiece in patternSplit:

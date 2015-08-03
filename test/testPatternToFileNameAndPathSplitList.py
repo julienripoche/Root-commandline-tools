@@ -4,7 +4,7 @@
 
 from redirectEscapeCharacters import *
 
-with stdoutRedirected(to=os.devnull):
+with stderrRedirected():
     from cmdLineUtils import patternToFileNameAndPathSplitList
     import argparse
 

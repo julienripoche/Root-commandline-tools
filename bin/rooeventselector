@@ -61,7 +61,7 @@ del optDict["sourcePatternList"]
 del optDict["destPattern"]
 
 # Creation of destination file (changing of the compression settings)
-with stdoutRedirected(to=os.devnull): destFile = \
+with stderrRedirected(): destFile = \
     ROOT.TFile.Open(destFileName,"recreate") \
     if optDict["recreate"] else \
     ROOT.TFile.Open(destFileName,"update")
@@ -69,7 +69,7 @@ if optDict["compress"]: destFile.SetCompressionSettings(optDict["compress"])
 
 # Loop on the root file
 for sourceFileName, sourcePathSplitList in sourceList:
-     with stdoutRedirected(to=os.devnull): sourceFile = \
+     with stderrRedirected(): sourceFile = \
         ROOT.TFile.Open(sourceFileName) \
         if sourceFileName != destFileName else \
         destFile
