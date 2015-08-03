@@ -45,7 +45,7 @@ del optDict["sourcePatternList"]
 
 # Loop on the ROOT files
 for fileName, pathSplitList in sourceList:
-    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+    with stdoutRedirected(to=os.devnull):
         rootFile = ROOT.TFile.Open(fileName,"update")
     for pathSplit in pathSplitList:
         createDirectories(rootFile,pathSplit,optDict)

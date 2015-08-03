@@ -60,7 +60,7 @@ if optDict["merge"]:
 
 # Loop on the root files
 for fileName, pathSplitList in sourceList:
-    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+    with stdoutRedirected(to=os.devnull):
         rootFile = ROOT.TFile.Open(fileName)
     # Fill the key list (almost the same as in rools)
     objList,dirList = typeSelector(rootFile,pathSplitList)

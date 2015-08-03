@@ -175,7 +175,7 @@ else : indent = 0
 # Loop on the ROOT files
 first_round_file = True
 for fileName, pathSplitList in sourceList:
-    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+    with stdoutRedirected(to=os.devnull):
         rootFile = ROOT.TFile.Open(fileName)
     objList,dirList = typeSelector(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]

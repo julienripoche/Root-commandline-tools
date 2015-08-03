@@ -4,7 +4,7 @@
 
 from redirectEscapeCharacters import *
 # redirect output (escape characters during ROOT importation...)
-with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+with stdoutRedirected(to=os.devnull):
     import ROOT
 
 from getTerminalSize import *
@@ -88,7 +88,7 @@ def patternToPathSplitList(fileName,pattern):
     # whole ROOT file, so unnecessary to open it
     if patternSplit == []: return [[]]
     # redirect output (missing dictionary for class...)
-    with stdoutRedirected(to=os.devnull), mergedStderrStdout():
+    with stdoutRedirected(to=os.devnull):
         rootFile = ROOT.TFile.Open(fileName)
     pathSplitList = [[]]
     for patternPiece in patternSplit:
@@ -173,6 +173,7 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
             obj.Write()
             del obj
     changeDirectory(destFile,destPathSplit)
+
     ROOT.gDirectory.SaveSelf(ROOT.kTRUE)
 
 def deleteRootObject(rootFile,pathSplit,optDict):
@@ -189,4 +190,4 @@ def deleteRootObject(rootFile,pathSplit,optDict):
         if pathSplit != []:
             changeDirectory(rootFile,pathSplit[:-1])
             ROOT.gDirectory.Delete(pathSplit[-1]+";*")
-        else: os.system("rm {}".format(rootFile.GetName()))
+        else: os.system("rm {0}".format(rootFile.GetName()))
