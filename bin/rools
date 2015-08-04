@@ -12,17 +12,20 @@ ANSI_END = "\x1B[0m"
 
 def colorInBold(string):
     """Color the string in bold if the output is the terminal"""
-    if sys.stdout.isatty(): return ANSI_BOLD+string+ANSI_END
+    if sys.stdout.isatty() \
+       and sys.platform != 'win32': return ANSI_BOLD+string+ANSI_END
     else: return string
 
 def colorInBlue(string):
     """Color the string in blue if the output is the terminal"""
-    if sys.stdout.isatty(): return ANSI_BLUE+string+ANSI_END
+    if sys.stdout.isatty() \
+       and sys.platform != 'win32': return ANSI_BLUE+string+ANSI_END
     else: return string
 
 def colorInGreen(string):
     """Color the string in green if the output is the terminal"""
-    if sys.stdout.isatty(): return ANSI_GREEN+string+ANSI_END
+    if sys.stdout.isatty() \
+       and sys.platform != 'win32': return ANSI_GREEN+string+ANSI_END
     else: return string
 
 TREE_TEMPLATE = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"

@@ -1,19 +1,28 @@
 #! /usr/bin/env python
 
 import os
-import filecmp
 
 failure_nb = 0
 test_nb = 0
 
+def cmp_lines(path_1, path_2):
+    l1 = l2 = ' '
+    with open(path_1, 'U') as f1, open(path_2, 'U') as f2:
+        while l1 != '' and l2 != '':
+            l1 = f1.readline()
+            l2 = f2.readline()
+            if l1 != l2:
+                return False
+    return True
+
 def testCommand(testName,command,refFileName):
     ofileName = testName+".out"
-    command += " >& %s" %ofileName
+    command += " > %s 2>&1" %ofileName
     os.system(command)
     print "Test %s" %testName,
     global test_nb
     test_nb += 1
-    if filecmp.cmp(ofileName,refFileName):
+    if cmp_lines(ofileName,refFileName):
         print "SUCCESS"
     else:
         print "FAILURE"
@@ -21,9 +30,9 @@ def testCommand(testName,command,refFileName):
         failure_nb += 1
 
 ############################## PATTERN TESTS ############################
-testCommand("SimplePattern", "./testPatternToFileNameAndPathSplitList.py test.root", "SimplePattern.ref")
-testCommand("SimplePattern2", "./testPatternToFileNameAndPathSplitList.py test.root:tof", "SimplePattern2.ref")
-testCommand("SimplePattern3", "./testPatternToFileNameAndPathSplitList.py test.root:*", "SimplePattern3.ref")
+testCommand("SimplePattern", "python testPatternToFileNameAndPathSplitList.py test.root", "SimplePattern.ref")
+testCommand("SimplePattern2", "python testPatternToFileNameAndPathSplitList.py test.root:tof", "SimplePattern2.ref")
+testCommand("SimplePattern3", "python testPatternToFileNameAndPathSplitList.py test.root:*", "SimplePattern3.ref")
 #########################################################################
 
 ############################## ROOLS TESTS ##############################
