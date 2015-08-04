@@ -41,6 +41,7 @@ with stderrRedirected(): destFile = \
     if optDict["recreate"] else \
     ROOT.TFile.Open(destFileName,"update")
 if optDict["compress"]: destFile.SetCompressionSettings(optDict["compress"])
+ROOT.gROOT.GetListOfFiles().Remove(destFile) # Fast copy necessity
 
 # Loop on the root files
 for sourceFileName, sourcePathSplitList in sourceList:
@@ -48,6 +49,7 @@ for sourceFileName, sourcePathSplitList in sourceList:
         ROOT.TFile.Open(sourceFileName) \
         if sourceFileName != destFileName else \
         destFile
+    ROOT.gROOT.GetListOfFiles().Remove(sourceFile) # Fast copy necessity
     for sourcePathSplit in sourcePathSplitList:
         copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit)
     if sourceFileName != destFileName:

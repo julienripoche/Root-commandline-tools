@@ -171,9 +171,8 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
             #if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
             #    ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()
-            del obj
+            obj.Delete()
     changeDirectory(destFile,destPathSplit)
-
     ROOT.gDirectory.SaveSelf(ROOT.kTRUE)
 
 def deleteRootObject(rootFile,pathSplit,optDict):
