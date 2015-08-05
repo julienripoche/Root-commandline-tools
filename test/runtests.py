@@ -7,12 +7,13 @@ test_nb = 0
 
 def cmp_lines(path_1, path_2):
     l1 = l2 = ' '
-    with open(path_1, 'U') as f1, open(path_2, 'U') as f2:
-        while l1 != '' and l2 != '':
-            l1 = f1.readline()
-            l2 = f2.readline()
-            if l1 != l2:
-                return False
+    with open(path_1, 'U') as f1:
+        with open(path_2, 'U') as f2:
+            while l1 != '' and l2 != '':
+                l1 = f1.readline()
+                l2 = f2.readline()
+                if l1 != l2:
+                    return False
     return True
 
 def testCommand(testName,command,refFileName):
