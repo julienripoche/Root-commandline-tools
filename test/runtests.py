@@ -1,6 +1,11 @@
-#! /usr/bin/env python
+#!/usr/bin/python
 
 import os
+import shutil
+import sys
+
+if sys.platform == 'win32':
+    os.environ["PATHEXT"] += os.pathsep + ".py"
 
 failure_nb = 0
 test_nb = 0
@@ -50,7 +55,8 @@ testCommand("WebRools2", "rools -l http://root.cern.ch/files/pippa.root", "WebRo
 #########################################################################
 
 ############################## ROOCP TESTS ##############################
-os.system("cp test.root source.root && roocp source.root dest.root")
+shutil.copy("test.root","source.root")
+os.system("roocp source.root dest.root")
 testCommand("SimpleRoocp", "rools dest.root", "SimpleRools.ref")
 testCommand("SimpleRoocp2", "rools dest.root:*", "SimpleRools2.ref")
 testCommand("SimpleRoocp3", "rools dest.root:tof", "SimpleRools3.ref")
@@ -59,18 +65,20 @@ print "Test SimpleRoocp5",
 test_nb += 1
 if os.path.isfile("source.root") and os.path.isfile("dest.root"):
     print "SUCCESS"
-    os.system("rm source.root dest.root")
+    os.remove("source.root")
+    os.remove("dest.root")
 else:
     print "FAILURE"
     failure_nb += 1
     if os.path.isfile("source.root"):
-        os.system("rm source.root")
+        os.remove("source.root")
     if os.path.isfile("dest.root"):
-        os.system("rm dest.root")
+        os.remove("dest.root")
 #########################################################################
 
 ############################## ROOMV TESTS ##############################
-os.system("cp test.root source.root && roomv source.root dest.root")
+shutil.copy("test.root","source.root")
+os.system("roomv source.root dest.root")
 testCommand("SimpleRoomv", "rools dest.root", "SimpleRools.ref")
 testCommand("SimpleRoomv2", "rools dest.root:*", "SimpleRools2.ref")
 testCommand("SimpleRoomv3", "rools dest.root:tof", "SimpleRools3.ref")
@@ -79,53 +87,53 @@ print "Test SimpleRoomv5",
 test_nb += 1
 if not os.path.isfile("source.root") and os.path.isfile("dest.root"):
     print "SUCCESS"
-    os.system("rm dest.root")
+    os.remove("dest.root")
 else:
     print "FAILURE"
     failure_nb += 1
     if os.path.isfile("source.root"):
-        os.system("rm source.root")
+        os.remove("source.root")
     if os.path.isfile("dest.root"):
-        os.system("rm dest.root")
+        os.remove("dest.root")
 #########################################################################
 
 ############################## ROORM TESTS ##############################
-os.system("cp test.root victim.root")
+shutil.copy("test.root","victim.root")
 testCommand("SimpleRoorm", "roorm victim.root:hpx && rools victim.root", "SimpleRoorm.ref")
 if os.path.isfile("victim.root"):
-    os.system("rm victim.root")
-os.system("cp test.root victim.root")
+    os.remove("victim.root")
+shutil.copy("test.root","victim.root")
 testCommand("SimpleRoorm2", "roorm victim.root:tof/plane0 && rools victim.root:tof", "SimpleRoorm2.ref")
 if os.path.isfile("victim.root"):
-    os.system("rm victim.root")
+    os.remove("victim.root")
 print "Test SimpleRoorm3",
 test_nb += 1
-os.system("cp test.root victim.root")
+shutil.copy("test.root","victim.root")
 os.system("roorm victim.root")
 if not os.path.isfile("victim.root"):
     print "SUCCESS"
 else:
     print "FAILURE"
     failure_nb += 1
-    os.system("rm victim.root")
+    os.remove("victim.root")
 #########################################################################
 
 ############################# ROOMKDIR TESTS ############################
-os.system("cp test.root target.root")
+shutil.copy("test.root","target.root")
 testCommand("SimpleRoomkdir", "roomkdir target.root:new_directory && rools target.root", "SimpleRoomkdir.ref")
 if os.path.isfile("target.root"):
-    os.system("rm target.root")
-os.system("cp test.root target.root")
+    os.remove("target.root")
+shutil.copy("test.root","target.root")
 testCommand("SimpleRoomkdir2", "roomkdir target.root:dir/new_directory && rools target.root:dir", "SimpleRoomkdir2.ref")
 if os.path.isfile("target.root"):
-    os.system("rm target.root")
+    os.remove("target.root")
 testCommand("SimpleRoomkdir3", "roomkdir target.root && rools target.root", "SimpleRoomkdir3.ref")
 if os.path.isfile("target.root"):
-    os.system("rm target.root")
-os.system("cp test.root target.root")
+    os.remove("target.root")
+shutil.copy("test.root","target.root")
 testCommand("SimpleRoomkdir4", "roomkdir -p target.root:a/b/c && rools target.root:a/b", "SimpleRoomkdir4.ref")
 if os.path.isfile("target.root"):
-    os.system("rm target.root")
+    os.remove("target.root")
 #########################################################################
 
 ################################ THE END ################################

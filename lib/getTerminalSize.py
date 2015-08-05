@@ -27,7 +27,8 @@ def getTerminalSize():
     if current_os in ['Linux', 'Darwin'] or current_os.startswith('CYGWIN'):
         tuple_xy = _get_terminal_size_linux()
     if tuple_xy is None:
-        print "default"
+        #print "default"
+        #_get_terminal_size_windows() or _get_terminal_size_tput don't work
         tuple_xy = (80, 25)      # default value
     return tuple_xy
 
