@@ -94,21 +94,24 @@ def patternToPathSplitList(fileName,pattern):
     for patternPiece in patternSplit:
         newPathSplitList = []
         for pathSplit in pathSplitList:
-            # security to stay in top level of trees
-            if isTree(rootFile,pathSplit[:-1]): continue
-            elif isDirectory(rootFile,pathSplit):
+            ## Stay in top level of trees
+            #if isTree(rootFile,pathSplit[:-1]):
+            #    continue
+            #elif isDirectory(rootFile,pathSplit):
+            if isDirectory(rootFile,pathSplit):
                 changeDirectory(rootFile,pathSplit)
                 newPathSplitList.extend( \
                     [pathSplit + [key.GetName()] \
                     for key in ROOT.gDirectory.GetListOfKeys() \
                     if fnmatch.fnmatch(key.GetName(),patternPiece)])
-            elif isTree(rootFile,pathSplit):
-                changeDirectory(rootFile,pathSplit[:-1])
-                T = ROOT.gDirectory.Get(pathSplit[-1])
-                newPathSplitList.extend( \
-                    [pathSplit + [branch.GetName()] \
-                    for branch in T.GetListOfBranches() \
-                    if fnmatch.fnmatch(branch.GetName(),patternPiece)])
+            ## Equivalent for tree inspection
+            #elif isTree(rootFile,pathSplit):
+            #    changeDirectory(rootFile,pathSplit[:-1])
+            #    T = ROOT.gDirectory.Get(pathSplit[-1])
+            #    newPathSplitList.extend( \
+            #        [pathSplit + [branch.GetName()] \
+            #        for branch in T.GetListOfBranches() \
+            #        if fnmatch.fnmatch(branch.GetName(),patternPiece)])
         pathSplitList = newPathSplitList
     if pathSplitList == []: # no match
         logging.warning("Can't find {0} in {1}".format(pattern,fileName))
@@ -167,7 +170,7 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
         else:
             obj = key.ReadObj()
             changeDirectory(destFile,destPathSplit)
-            # Option replace ?
+            ## Option replace if existing ?
             #if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
             #    ROOT.gDirectory.Delete(obj.GetName()+";*")
             obj.Write()

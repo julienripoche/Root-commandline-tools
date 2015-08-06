@@ -7,9 +7,6 @@ from cmdLineHelps import *
 
 extensionList = ["ps","Portrait","Landscape","eps","Preview", \
                 "pdf","svg","tex","gif","xpm","png","jpg"]
-
-# Check the use of os.path
-# Think of print message like "pdf file is created"
                 
 ##### Beginning of the main code #####
 
@@ -80,9 +77,8 @@ for fileName, pathSplitList in sourceList:
                     outputFileName = \
                         branch.GetName() + "." +optDict["extension"]
                     if optDict["directory"]:
-                        print "Here, use os.path !"
-                        outputFileName = \
-                            optDict["directory"] + "/" + outputFileName
+                        outputFileName = os.path.join( \
+                            optDict["directory"],outputFileName)
                 obj.Draw(branch.GetName())
                 if optDict["merge"] or optDict["extension"] == 'pdf':
                     objTitle = "Title:"+branch.GetName()+" : "+branch.GetTitle()
@@ -93,9 +89,8 @@ for fileName, pathSplitList in sourceList:
             if not optDict["merge"]:
                 outputFileName = key.GetName() + "." +optDict["extension"]
                 if optDict["directory"]:
-                    print "Here, use os.path !"
-                    outputFileName = \
-                        optDict["directory"] + "/" + outputFileName
+                    outputFileName = os.path.join( \
+                        optDict["directory"],outputFileName)
             obj = key.ReadObj()
             obj.Draw()
             if optDict["merge"] or optDict["extension"] == 'pdf':
