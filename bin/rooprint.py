@@ -8,6 +8,9 @@ from cmdLineHelps import *
 extensionList = ["ps","Portrait","Landscape","eps","Preview", \
                 "pdf","svg","tex","gif","xpm","png","jpg"]
 
+# Check the use of os.path
+# Think of print message like "pdf file is created"
+                
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse

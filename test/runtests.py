@@ -4,13 +4,13 @@ import os
 import shutil
 import sys
 
+# Add the extension ".py" if the os is Windows
 if sys.platform == 'win32':
     os.environ["PATHEXT"] += os.pathsep + ".py"
 
-failure_nb = 0
-test_nb = 0
-
 def cmp_lines(path_1, path_2):
+    """Compare all lines of the two files with a platform-independent
+    new line character comparison (with file.readline())"""
     l1 = l2 = ' '
     with open(path_1, 'U') as f1:
         with open(path_2, 'U') as f2:
@@ -21,7 +21,14 @@ def cmp_lines(path_1, path_2):
                     return False
     return True
 
+# Initialize counters
+failure_nb = 0
+test_nb = 0
+
 def testCommand(testName,command,refFileName):
+    """Easy way to test a command :
+    - Redirect the output of command in testName.out
+    - Compare testName.out avec refFileName"""
     ofileName = testName+".out"
     command += " > %s 2>&1" %ofileName
     os.system(command)

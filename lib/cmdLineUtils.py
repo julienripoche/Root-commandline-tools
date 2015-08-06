@@ -190,4 +190,5 @@ def deleteRootObject(rootFile,pathSplit,optDict):
             changeDirectory(rootFile,pathSplit[:-1])
             ROOT.gDirectory.Delete(pathSplit[-1]+";*")
         else:
+            rootFile.Close()
             os.remove(rootFile.GetName())
