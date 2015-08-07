@@ -145,24 +145,40 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
     return fileList
 
 def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
-    """Copy objects from a file (sourceFile,sourcePathSplit)
-    to a directory in an other file (destFile,destPathSplit)
+    """Create the destination directory, if needed,
+    and then run copyRootObjectRecursive"""
+    isDirectory = False
+    if sourcePathSplit != []:
+        key = getKey(sourceFile,sourcePathSplit)
+        if isDirectoryKey(key):
+            isDirectory = True
+            changeDirectory(destFile,destPathSplit)
+            if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
+                ROOT.gDirectory.mkdir(key.GetName())
+            copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                destFile,destPathSplit+[key.GetName()])
+    if not isDirectory :
+        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+            destFile,destPathSplit)
+
+def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit):
+    """Copy objects from a file or directory (sourceFile,sourcePathSplit)
+    to an other file or directory (destFile,destPathSplit)
     - that's a recursive function
     - Python adaptation of a root input/output tutorial :
       $ROOTSYS/tutorials/io/copyFiles.C"""
     for key in getKeyList(sourceFile,sourcePathSplit):
-        classname = key.GetClassName()
-        cl = ROOT.gROOT.GetClass(classname)
-        if (not cl): return
-        if (cl.InheritsFrom(ROOT.TDirectory.Class())):
+        if isDirectoryKey(key):
             changeDirectory(destFile,destPathSplit)
             if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
                 ROOT.gDirectory.mkdir(key.GetName())
-            changeDirectory(sourceFile,sourcePathSplit+[key.GetName()])
-            copyRootObject(sourceFile,sourcePathSplit+[key.GetName()], \
-                           destFile,destPathSplit+[key.GetName()])
-        elif (cl.InheritsFrom(ROOT.TTree.Class())):
-            changeDirectory(sourceFile,sourcePathSplit[:-1])
+            copyRootObjectRecursive(sourceFile,sourcePathSplit+[key.GetName()], \
+                destFile,destPathSplit+[key.GetName()])
+        elif isTreeKey(key):
+            if isDirectory(sourceFile,sourcePathSplit):
+                changeDirectory(sourceFile,sourcePathSplit)
+            else:
+                changeDirectory(sourceFile,sourcePathSplit[:-1])
             T = ROOT.gDirectory.Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
             newT = T.CloneTree(-1,"fast")
