@@ -39,20 +39,18 @@ COMPRESS_HELP = \
     "change the compression settings of the destination file."
 DIRECTORY_HELP = \
     "put output files in a subdirectory named DIRECTORY."
-EXTENSION_HELP = \
-    "specify output extension (ex: pdf, png)."
 FIRST_EVENT_HELP = \
     "specify the first event to copy."
+FORMAT_HELP = \
+    "specify output format (ex: pdf, png)."
 I_HELP = \
     "prompt before every removal."
 LAST_EVENT_HELP = \
     "specify the last event to copy."
 LONG_PRINT_HELP = \
     "use a long listing format."
-MERGE_HELP = \
-    "merge files in a file named MERGE (only for ps and pdf)."
 OUTPUT_HELP = \
-    "merge files in a file named OUTPUT."
+    "merge files in a file named OUTPUT (only for ps and pdf)."
 PARENT_HELP = \
     "make parent directories as needed, no error if existing."
 RECREATE_HELP = \

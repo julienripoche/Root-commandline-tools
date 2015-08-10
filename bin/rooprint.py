@@ -5,7 +5,7 @@
 from cmdLineUtils import *
 from cmdLineHelps import *
 
-extensionList = ["ps","Portrait","Landscape","eps","Preview", \
+formatList = ["ps","Portrait","Landscape","eps","Preview", \
                 "pdf","svg","tex","gif","xpm","png","jpg"]
                 
 ##### Beginning of the main code #####
@@ -14,8 +14,8 @@ extensionList = ["ps","Portrait","Landscape","eps","Preview", \
 parser = argparse.ArgumentParser(description=ROOPRINT_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-d", "--directory", help=DIRECTORY_HELP)
-parser.add_argument("-m", "--merge", help=MERGE_HELP)
-parser.add_argument("-e", "--extension", help=EXTENSION_HELP)
+parser.add_argument("-o", "--output", help=OUTPUT_HELP)
+parser.add_argument("-f", "--format", help=FORMAT_HELP)
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names
@@ -33,27 +33,27 @@ ROOT.gErrorIgnoreLevel = 9999
 ROOT.gROOT.SetBatch()
 canvas = ROOT.TCanvas("canvas")
 
-# Take the extension of output file (merge option)
-if not optDict["extension"] and optDict["merge"]:
-    fileName = optDict["merge"]
-    extension = fileName.split(".")[-1]
-    if extension in extensionList: optDict["extension"] = extension
+# Take the format of the output file (format option)
+if not optDict["format"] and optDict["output"]:
+    fileName = optDict["output"]
+    fileFormat = fileName.split(".")[-1]
+    if fileFormat in formatList: optDict["format"] = fileFormat
 
-# Use pdf as default extension
-if not optDict["extension"]: optDict["extension"] = "pdf"
+# Use pdf as default format
+if not optDict["format"]: optDict["format"] = "pdf"
 
 # Create the output directory (directory option)
 if optDict["directory"]:
     if not os.path.isdir(os.path.join(os.getcwd(),optDict["directory"])):
         os.mkdir(optDict["directory"])
 
-# Make the output name, begin to print (merge option)
-if optDict["merge"]:
-    if optDict["extension"] in ['ps','pdf']:
-        outputFileName = optDict["merge"]
+# Make the output name, begin to print (output option)
+if optDict["output"]:
+    if optDict["format"] in ['ps','pdf']:
+        outputFileName = optDict["output"]
         if optDict["directory"]: outputFileName = \
            optDict["directory"] + "/" + outputFileName
-        canvas.Print(outputFileName+"[",optDict["extension"])
+        canvas.Print(outputFileName+"[",optDict["format"])
     else:
         print("Can't merge pictures, only postscript or pdf files")
         optDict["output"] = ""
@@ -73,33 +73,33 @@ for fileName, pathSplitList in sourceList:
         if isTreeKey(key):
             obj = key.ReadObj()
             for branch in obj.GetListOfBranches():
-                if not optDict["merge"]:
+                if not optDict["output"]:
                     outputFileName = \
-                        branch.GetName() + "." +optDict["extension"]
+                        branch.GetName() + "." +optDict["format"]
                     if optDict["directory"]:
                         outputFileName = os.path.join( \
                             optDict["directory"],outputFileName)
                 obj.Draw(branch.GetName())
-                if optDict["merge"] or optDict["extension"] == 'pdf':
+                if optDict["output"] or optDict["format"] == 'pdf':
                     objTitle = "Title:"+branch.GetName()+" : "+branch.GetTitle()
                     canvas.Print(outputFileName,objTitle)
                 else:
-                    canvas.Print(outputFileName,optDict["extension"])
+                    canvas.Print(outputFileName,optDict["format"])
         else:
-            if not optDict["merge"]:
-                outputFileName = key.GetName() + "." +optDict["extension"]
+            if not optDict["output"]:
+                outputFileName = key.GetName() + "." +optDict["format"]
                 if optDict["directory"]:
                     outputFileName = os.path.join( \
                         optDict["directory"],outputFileName)
             obj = key.ReadObj()
             obj.Draw()
-            if optDict["merge"] or optDict["extension"] == 'pdf':
+            if optDict["output"] or optDict["format"] == 'pdf':
                 objTitle = "Title:"+key.GetClassName()+" : "+key.GetTitle()
                 canvas.Print(outputFileName,objTitle)
             else:
-                canvas.Print(outputFileName,optDict["extension"])
+                canvas.Print(outputFileName,optDict["format"])
     rootFile.Close()
 
-# End to print (merge option)
-if optDict["merge"]:
+# End to print (output option)
+if optDict["output"]:
     canvas.Print(outputFileName+"]",objTitle)
