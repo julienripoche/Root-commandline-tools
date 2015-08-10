@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-"""Contain utils for ROOT commandlines tools"""
+"""Contain utils for ROOT command line tools"""
 
 from redirectEscapeCharacters import *
 # redirect output (escape characters during ROOT importation...)
@@ -144,24 +144,43 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
         fileList.append((fileName,pathSplitList))
     return fileList
 
-def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit):
+def isExist(rootFile,pathSplit):
+    """..."""
+    changeDirectory(rootFile,pathSplit[:-1])
+    return ROOT.gDirectory.GetListOfKeys().Contains(pathSplit[-1])
+
+def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneFile=False):
     """Create the destination directory, if needed,
     and then run copyRootObjectRecursive"""
-    isDirectory = False
+    setName = ""
+    if oneFile and destPathSplit != [] and not isExist(destFile,destPathSplit):
+        setName = destPathSplit[-1]
     if sourcePathSplit != []:
         key = getKey(sourceFile,sourcePathSplit)
         if isDirectoryKey(key):
-            isDirectory = True
-            changeDirectory(destFile,destPathSplit)
-            if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
-                ROOT.gDirectory.mkdir(key.GetName())
-            copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                destFile,destPathSplit+[key.GetName()])
-    if not isDirectory :
+            if setName != "":
+                changeDirectory(destFile,destPathSplit[:-1])
+                ROOT.gDirectory.mkdir(setName)
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit)
+            else:
+                changeDirectory(destFile,destPathSplit)
+                if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
+                    ROOT.gDirectory.mkdir(key.GetName())
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit+[key.GetName()])
+        else:
+            if setName != "":  
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit[:-1],setName)
+            else:
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit)
+    else:
         copyRootObjectRecursive(sourceFile,sourcePathSplit, \
             destFile,destPathSplit)
 
-def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit):
+def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,setName=""):
     """Copy objects from a file or directory (sourceFile,sourcePathSplit)
     to an other file or directory (destFile,destPathSplit)
     - that's a recursive function
@@ -175,13 +194,11 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit):
             copyRootObjectRecursive(sourceFile,sourcePathSplit+[key.GetName()], \
                 destFile,destPathSplit+[key.GetName()])
         elif isTreeKey(key):
-            if isDirectory(sourceFile,sourcePathSplit):
-                changeDirectory(sourceFile,sourcePathSplit)
-            else:
-                changeDirectory(sourceFile,sourcePathSplit[:-1])
-            T = ROOT.gDirectory.Get(key.GetName()+";"+str(key.GetCycle()))
+            T = key.GetMotherDir().Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
             newT = T.CloneTree(-1,"fast")
+            if setName != "":
+                newT.SetName(setName)
             newT.Write()
         else:
             obj = key.ReadObj()
@@ -189,6 +206,8 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit):
             ## Option replace if existing ?
             #if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
             #    ROOT.gDirectory.Delete(obj.GetName()+";*")
+            if setName != "":
+                obj.SetName(setName)
             obj.Write()
             obj.Delete()
     changeDirectory(destFile,destPathSplit)
@@ -211,3 +230,61 @@ def deleteRootObject(rootFile,pathSplit,optDict):
         else:
             rootFile.Close()
             os.remove(rootFile.GetName())
+
+# Help strings for ROOT command line tools
+
+SOURCE_HELP = \
+    "path of the source."
+SOURCES_HELP = \
+    "path of the source(s)."
+DEST_HELP = \
+    "path of the destination."
+
+ROOBROWSE_HELP = \
+    "Open a ROOT file on a TBrowser " + \
+    "(for more informations please look at the man page)."
+ROOEVENTSELECTOR_HELP = \
+    "Copy subsets of trees from source ROOT files " + \
+    "to new trees on a destination ROOT file " + \
+    "(for more informations please look at the man page)."
+ROOCP_HELP = \
+    "Copy objects from ROOT files into an other " + \
+    "(for more informations please look at the man page)."
+ROOLS_HELP = \
+    "Display ROOT files contents in the terminal " + \
+    "(for more informations please look at the man page)."
+ROOMKDIR_HELP = \
+    "Add directories in a ROOT files " + \
+    "(for more informations please look at the man page)."
+ROOMV_HELP = \
+    "Move objects from ROOT files to an other " + \
+    "(for more informations please look at the man page)."
+ROOPRINT_HELP = \
+    "Print ROOT files contents on ps,pdf or pictures files " + \
+    "(for more informations please look at the man page)."
+ROORM_HELP = \
+    "Remove objects from ROOT files " + \
+    "(for more informations please look at the man page)."
+
+COMPRESS_HELP = \
+    "change the compression settings of the destination file."
+DIRECTORY_HELP = \
+    "put output files in a subdirectory named DIRECTORY."
+FIRST_EVENT_HELP = \
+    "specify the first event to copy."
+FORMAT_HELP = \
+    "specify output format (ex: pdf, png)."
+I_HELP = \
+    "prompt before every removal."
+LAST_EVENT_HELP = \
+    "specify the last event to copy."
+LONG_PRINT_HELP = \
+    "use a long listing format."
+OUTPUT_HELP = \
+    "merge files in a file named OUTPUT (only for ps and pdf)."
+PARENT_HELP = \
+    "make parent directories as needed, no error if existing."
+RECREATE_HELP = \
+    "recreate the destination file."
+TREE_PRINT_HELP = \
+    "print tree recursively and use a long listing format."

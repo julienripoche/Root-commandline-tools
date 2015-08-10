@@ -4,7 +4,6 @@
 from ROOT files into an other"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 ##### Beginning of the main code #####
 
@@ -51,7 +50,7 @@ for sourceFileName, sourcePathSplitList in sourceList:
         destFile
     ROOT.gROOT.GetListOfFiles().Remove(sourceFile) # Fast copy necessity
     for sourcePathSplit in sourcePathSplitList:
-        copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit)
+        copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,len(sourcePathSplitList)==1)
     if sourceFileName != destFileName:
         sourceFile.Close()
 destFile.Close()

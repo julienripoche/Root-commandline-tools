@@ -4,7 +4,6 @@
 from ROOT files to an other"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 ##### Beginning of the main code #####
 

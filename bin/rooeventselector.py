@@ -4,7 +4,6 @@
 ROOT files to new trees on a destination ROOT file"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
     """Copy a subset of the tree from (sourceFile,sourcePathSplit)

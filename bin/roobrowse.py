@@ -3,7 +3,6 @@
 """Command line to open a ROOT file on a TBrowser"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 ##### Beginning of the main code #####
 

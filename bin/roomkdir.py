@@ -3,7 +3,6 @@
 """Command line to add directories in ROOT files"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 def createDirectory(rootFile,pathSplit):
     """Add a directory named 'pathSplit[-1]'

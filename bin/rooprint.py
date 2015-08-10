@@ -3,7 +3,6 @@
 """Command line to print ROOT files contents on ps,pdf or png,gif..."""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 formatList = ["ps","Portrait","Landscape","eps","Preview", \
                 "pdf","svg","tex","gif","xpm","png","jpg"]

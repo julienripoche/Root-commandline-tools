@@ -3,7 +3,6 @@
 """Command line to dump ROOT files contents to terminal"""
 
 from cmdLineUtils import *
-from cmdLineHelps import *
 
 ANSI_BOLD = "\x1B[1m"
 ANSI_BLUE = "\x1B[34m"
