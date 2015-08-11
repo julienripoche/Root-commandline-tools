@@ -4,13 +4,23 @@
 
 from cmdLineUtils import *
 
-formatList = ["ps","Portrait","Landscape","eps","Preview", \
-                "pdf","svg","tex","gif","xpm","png","jpg"]
-                
+formatList = ["ps","eps","pdf","svg","tex","gif","xpm","png","jpg"]
+
+#Help strings
+COMMAND_HELP = \
+    "Print ROOT files contents on ps,pdf or pictures files " + \
+    "(for more informations please look at the man page)."
+DIRECTORY_HELP = \
+    "put output files in a subdirectory named DIRECTORY."
+FORMAT_HELP = \
+    "specify output format (ex: pdf, png)."
+OUTPUT_HELP = \
+    "merge files in a file named OUTPUT (only for ps and pdf)."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOPRINT_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-d", "--directory", help=DIRECTORY_HELP)
 parser.add_argument("-o", "--output", help=OUTPUT_HELP)
@@ -25,7 +35,6 @@ sourceList = \
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
 
 # Initialize the canvas
 ROOT.gErrorIgnoreLevel = 9999
@@ -62,7 +71,7 @@ for fileName, pathSplitList in sourceList:
     with stderrRedirected():
         rootFile = ROOT.TFile.Open(fileName)
     # Fill the key list (almost the same as in rools)
-    objList,dirList = typeSelector(rootFile,pathSplitList)
+    objList,dirList = keyClassSpliter(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
     dirList.sort()

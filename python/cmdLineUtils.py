@@ -21,19 +21,18 @@ def changeDirectory(rootFile,pathSplit):
     rootFile.cd()
     for directoryName in pathSplit:
         ROOT.gDirectory.Get(directoryName).cd()
-        #directory = ROOT.gDirectory.Get(directoryName)
-        #if hasattr(directory,"cd"):
-        #    directory.cd()
-        #else:
-        #    logging.error("There is no directory named \"{0}\"" \
-        #                  .format(directoryName))
-        #    break
 
 def getKey(rootFile,pathSplit):
     """Get the key of the corresponding object
     (rootFile,pathSplit)"""
     changeDirectory(rootFile,pathSplit[:-1])
     return ROOT.gDirectory.GetKey(pathSplit[-1])
+
+def isExisting(rootFile,pathSplit):
+    """Return True if the object, corresponding to
+    (rootFile,pathSplit), exits"""
+    changeDirectory(rootFile,pathSplit[:-1])
+    return ROOT.gDirectory.GetListOfKeys().Contains(pathSplit[-1])
 
 def isDirectoryKey(key):
     """Return True if the object, corresponding to the key,
@@ -69,7 +68,7 @@ def getKeyList(rootFile,pathSplit):
         return ROOT.gDirectory.GetListOfKeys()
     else: return [getKey(rootFile,pathSplit)]
 
-def typeSelector(rootFile,pathSplitList):
+def keyClassSpliter(rootFile,pathSplitList):
     """Separate directories and other objects
     for rools and rooprint"""
     objList = []
@@ -144,55 +143,86 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
         fileList.append((fileName,pathSplitList))
     return fileList
 
-def isExist(rootFile,pathSplit):
-    """..."""
-    changeDirectory(rootFile,pathSplit[:-1])
-    return ROOT.gDirectory.GetListOfKeys().Contains(pathSplit[-1])
+TARGET_ERROR = "target '{0}' is not a directory"
+OVERWRITE_ERROR = "cannot overwrite non-directory '{0}' with directory '{1}'"
 
-def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneFile=False):
-    """Create the destination directory, if needed,
-    and then run copyRootObjectRecursive"""
-    setName = ""
-    if oneFile and destPathSplit != [] and not isExist(destFile,destPathSplit):
-        setName = destPathSplit[-1]
-    if sourcePathSplit != []:
-        key = getKey(sourceFile,sourcePathSplit)
-        if isDirectoryKey(key):
-            if setName != "":
-                changeDirectory(destFile,destPathSplit[:-1])
-                ROOT.gDirectory.mkdir(setName)
-                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                    destFile,destPathSplit)
+def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneSource=False):
+    """Initialize the recursive function 'copyRootObjectRecursive',
+    written to be as unix-like as possible"""
+    isMultipleInput = not (oneSource and sourcePathSplit != [])
+    toContinue = True
+    if isMultipleInput:
+        if destPathSplit != [] and not (isExisting(destFile,destPathSplit) \
+            and isDirectory(destFile,destPathSplit)):
+            logging.warning(TARGET_ERROR.format(destPathSplit[-1]))
+            toContinue = False
+    if toContinue:
+        setName = ""
+        if not isMultipleInput and (destPathSplit != [] \
+            and not isExisting(destFile,destPathSplit)):
+            setName = destPathSplit[-1]
+            del destPathSplit[-1]
+        if sourcePathSplit != []:
+            key = getKey(sourceFile,sourcePathSplit)
+            if isDirectoryKey(key):
+                if setName != "":
+                    changeDirectory(destFile,destPathSplit)
+                    ROOT.gDirectory.mkdir(setName)
+                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                        destFile,destPathSplit+[setName])
+                elif isDirectory(destFile,destPathSplit):
+                    changeDirectory(destFile,destPathSplit)
+                    if not ROOT.gDirectory.GetListOfKeys().Contains( \
+                        key.GetName()):
+                        ROOT.gDirectory.mkdir(key.GetName())
+                        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                            destFile,destPathSplit+[key.GetName()])
+                    elif isDirectory(destFile,destPathSplit+[key.GetName()]):
+                        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                            destFile,destPathSplit+[key.GetName()])
+                    else:
+                        logging.warning(OVERWRITE_ERROR.format( \
+                            destPathSplit[-1]+"/"+key.GetName(),key.GetName()))
+                else:
+                    logging.warning(OVERWRITE_ERROR.format( \
+                        destPathSplit[-1],key.GetName()))
             else:
-                changeDirectory(destFile,destPathSplit)
-                if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
-                    ROOT.gDirectory.mkdir(key.GetName())
-                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                    destFile,destPathSplit+[key.GetName()])
+                if setName != "":  
+                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                        destFile,destPathSplit,setName)
+                elif isDirectory(destFile,destPathSplit):
+                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                        destFile,destPathSplit)
+                else:
+                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                        destFile,destPathSplit[:-1])
         else:
-            if setName != "":  
-                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                    destFile,destPathSplit[:-1],setName)
-            else:
-                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                    destFile,destPathSplit)
-    else:
-        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-            destFile,destPathSplit)
+            copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                destFile,destPathSplit)
 
 def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,setName=""):
     """Copy objects from a file or directory (sourceFile,sourcePathSplit)
     to an other file or directory (destFile,destPathSplit)
+    - Has the will to be unix-like
     - that's a recursive function
     - Python adaptation of a root input/output tutorial :
       $ROOTSYS/tutorials/io/copyFiles.C"""
     for key in getKeyList(sourceFile,sourcePathSplit):
         if isDirectoryKey(key):
             changeDirectory(destFile,destPathSplit)
+            ## copy T dir dans T tree
             if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
                 ROOT.gDirectory.mkdir(key.GetName())
-            copyRootObjectRecursive(sourceFile,sourcePathSplit+[key.GetName()], \
-                destFile,destPathSplit+[key.GetName()])
+                copyRootObjectRecursive(sourceFile, \
+                    sourcePathSplit+[key.GetName()], \
+                    destFile,destPathSplit+[key.GetName()])
+            elif isDirectory(destFile,destPathSplit+[key.GetName()]):
+                copyRootObjectRecursive(sourceFile, \
+                    sourcePathSplit+[key.GetName()], \
+                    destFile,destPathSplit+[key.GetName()])
+            else:
+                logging.warning(OVERWRITE_ERROR.format( \
+                    destPathSplit[-1]+"/"+key.GetName(),key.GetName()))
         elif isTreeKey(key):
             T = key.GetMotherDir().Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
@@ -232,59 +262,14 @@ def deleteRootObject(rootFile,pathSplit,optDict):
             os.remove(rootFile.GetName())
 
 # Help strings for ROOT command line tools
-
 SOURCE_HELP = \
     "path of the source."
 SOURCES_HELP = \
     "path of the source(s)."
 DEST_HELP = \
     "path of the destination."
-
-ROOBROWSE_HELP = \
-    "Open a ROOT file on a TBrowser " + \
-    "(for more informations please look at the man page)."
-ROOEVENTSELECTOR_HELP = \
-    "Copy subsets of trees from source ROOT files " + \
-    "to new trees on a destination ROOT file " + \
-    "(for more informations please look at the man page)."
-ROOCP_HELP = \
-    "Copy objects from ROOT files into an other " + \
-    "(for more informations please look at the man page)."
-ROOLS_HELP = \
-    "Display ROOT files contents in the terminal " + \
-    "(for more informations please look at the man page)."
-ROOMKDIR_HELP = \
-    "Add directories in a ROOT files " + \
-    "(for more informations please look at the man page)."
-ROOMV_HELP = \
-    "Move objects from ROOT files to an other " + \
-    "(for more informations please look at the man page)."
-ROOPRINT_HELP = \
-    "Print ROOT files contents on ps,pdf or pictures files " + \
-    "(for more informations please look at the man page)."
-ROORM_HELP = \
-    "Remove objects from ROOT files " + \
-    "(for more informations please look at the man page)."
-
 COMPRESS_HELP = \
-    "change the compression settings of the destination file."
-DIRECTORY_HELP = \
-    "put output files in a subdirectory named DIRECTORY."
-FIRST_EVENT_HELP = \
-    "specify the first event to copy."
-FORMAT_HELP = \
-    "specify output format (ex: pdf, png)."
-I_HELP = \
-    "prompt before every removal."
-LAST_EVENT_HELP = \
-    "specify the last event to copy."
-LONG_PRINT_HELP = \
-    "use a long listing format."
-OUTPUT_HELP = \
-    "merge files in a file named OUTPUT (only for ps and pdf)."
-PARENT_HELP = \
-    "make parent directories as needed, no error if existing."
+    "change the compression settings of the destination file" + \
+    "(if not already existed)."
 RECREATE_HELP = \
     "recreate the destination file."
-TREE_PRINT_HELP = \
-    "print tree recursively and use a long listing format."

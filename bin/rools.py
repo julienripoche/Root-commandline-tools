@@ -9,44 +9,45 @@ ANSI_BLUE = "\x1B[34m"
 ANSI_GREEN = "\x1B[32m"
 ANSI_END = "\x1B[0m"
 
-def colorInBold(string):
-    """Color the string in bold if the output is the terminal"""
-    if sys.stdout.isatty() \
-       and sys.platform != 'win32': return ANSI_BOLD+string+ANSI_END
+def isTerminal():
+    """Return True if the output is a terminal"""
+    return sys.stdout.isatty()
+
+def isWin32():
+    """Return True if the platform is Windows"""
+    return sys.platform == 'win32'
+
+def isSpecial(ansiCode,string):
+    """Use ansi code on 'string' if the output is the
+    terminal of a not Windows platform"""
+    if isTerminal() and not isWin32(): return ansiCode+string+ANSI_END
     else: return string
 
-def colorInBlue(string):
-    """Color the string in blue if the output is the terminal"""
-    if sys.stdout.isatty() \
-       and sys.platform != 'win32': return ANSI_BLUE+string+ANSI_END
-    else: return string
-
-def colorInGreen(string):
-    """Color the string in green if the output is the terminal"""
-    if sys.stdout.isatty() \
-       and sys.platform != 'win32': return ANSI_GREEN+string+ANSI_END
-    else: return string
+def write(string,indent=0,end=""):
+    """Use sys.stdout.write to write the string with an indentation
+    equal to indent and specifying the end character"""
+    sys.stdout.write(" "*indent+string+end)
 
 TREE_TEMPLATE = "{0:{nameWidth}}"+"{1:{titleWidth}}{2:{memoryWidth}}"
 
 def recursifTreePrinter(tree,indent):
     """Print recursively tree informations"""
-    if len(tree.GetListOfBranches()) > 0: # Width informations
+    listOfBranches = tree.GetListOfBranches()
+    if len(listOfBranches) > 0: # Width informations
         maxCharName = max([len(branch.GetName()) \
-            for branch in tree.GetListOfBranches()])
+            for branch in listOfBranches])
         maxCharTitle = max([len(branch.GetTitle()) \
-            for branch in tree.GetListOfBranches()])
+            for branch in listOfBranches])
         dic = { \
             "nameWidth":maxCharName+2, \
             "titleWidth":maxCharTitle+4, \
             "memoryWidth":1}
-    for branch in tree.GetListOfBranches(): # Print loop
+    for branch in listOfBranches: # Print loop
         rec = \
             [branch.GetName(), \
             "\""+branch.GetTitle()+"\"", \
             str(branch.GetTotBytes())]
-        print " "*indent + TREE_TEMPLATE.format(*rec,**dic)
-        # if indentLevel < optDict["deeper_level"]: to keep in mind
+        write(TREE_TEMPLATE.format(*rec,**dic),indent,end="\n")
         recursifTreePrinter(branch,indent+2)
 
 def prepareTime(time):
@@ -61,13 +62,12 @@ def prepareTime(time):
 MONTH = {1:'Jan',2:'Feb',3:'Mar',4:'Apr',5:'May',6:'Jun', \
          7:'Jul',8:'Aug',9:'Sep',10:'Oct',11:'Nov',12:'Dec'}
 LONG_TEMPLATE = \
-    colorInBold("{0:{classWidth}}")+"{1:{timeWidth}}" + \
+    isSpecial(ANSI_BOLD,"{0:{classWidth}}")+"{1:{timeWidth}}" + \
     "{2:{nameWidth}}{3:{titleWidth}}"
 
 def roolsPrintLongLs(keyList,optDict,indent):
     """Print a list of Tkey in columns
     pattern : classname, datetime, name and title"""
-    LONG_TEMPLATE_INDENTED = " "*indent + LONG_TEMPLATE
     if len(keyList) > 0: # Width informations
         maxCharClass = max([len(key.GetClassName()) for key in keyList])
         maxCharTime = 12
@@ -88,15 +88,10 @@ def roolsPrintLongLs(keyList,optDict,indent):
             " "+time[:2]+":"+time[2:4], \
             key.GetName(), \
             "\""+key.GetTitle()+"\""]
-        print LONG_TEMPLATE_INDENTED.format(*rec,**dic)
+        write(LONG_TEMPLATE.format(*rec,**dic),indent,end="\n")
         if optDict['tree'] and isTreeKey(key):
             tree = key.ReadObj()
             recursifTreePrinter(tree,indent+2)
-
-def write(string, indent=0):
-    """Use sys.stdout.write to write the string
-    with an indentation equal to indent"""
-    sys.stdout.write(" "*indent + string)
 
 def roolsPrintSimpleLs(keyList,indent):
     """Print list of strings in columns
@@ -128,19 +123,19 @@ def roolsPrintSimpleLs(keyList,indent):
         if i%ncol == 0: write("",indent) # indentation
         # Don't add spaces after the last element of the line or of the list
         if (i+1)%ncol != 0 and i != len(keyList)-1:
-            if not sys.stdout.isatty(): write( \
+            if not isTerminal(): write( \
                 key.GetName().ljust(col_widths[i%ncol]))
             elif isDirectoryKey(keyList[i]): write( \
-                colorInBlue(key.GetName()).ljust(col_widths[i%ncol] + 9))
+                isSpecial(ANSI_BLUE,key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_BLUE+ANSI_END) = len("\x1B[34m"+"\x1B[0m") = 9
             elif isTreeKey(keyList[i]): write( \
-                colorInGreen(key.GetName()).ljust(col_widths[i%ncol] + 9))
+                isSpecial(ANSI_GREEN,key.GetName()).ljust(col_widths[i%ncol] + 9))
                 # len(ANSI_GREEN+ANSI_END) = len("\x1B[32m"+"\x1B[0m") = 9
             else: write(key.GetName().ljust(col_widths[i%ncol]))
         else: # No spaces after the last element of the line or of the list
-            if not sys.stdout.isatty(): write(key.GetName())
-            elif isDirectoryKey(keyList[i]): write(colorInBlue(key.GetName()))
-            elif isTreeKey(keyList[i]): write(colorInGreen(key.GetName()))
+            if not isTerminal(): write(key.GetName())
+            elif isDirectoryKey(keyList[i]): write(isSpecial(ANSI_BLUE,key.GetName()))
+            elif isTreeKey(keyList[i]): write(isSpecial(ANSI_GREEN,key.GetName()))
             else: write(key.GetName())
             write('\n')
 
@@ -151,10 +146,20 @@ def roolsPrint(keyList,optDict,indent=0):
        roolsPrintLongLs(keyList,optDict,indent)
     else: roolsPrintSimpleLs(keyList,indent)
 
+#Help strings
+
+COMMAND_HELP = \
+    "Display ROOT files contents in the terminal " + \
+    "(for more informations please look at the man page)."
+LONG_PRINT_HELP = \
+    "use a long listing format."
+TREE_PRINT_HELP = \
+    "print tree recursively and use a long listing format."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOLS_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-l", "--long", help=LONG_PRINT_HELP, action="store_true")
 parser.add_argument("-t", "--tree", help=TREE_PRINT_HELP, action="store_true")
@@ -168,31 +173,30 @@ sourceList = \
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
 
-# Initialize indent level
-if len(sourceList) > 1: indent = 2
-else : indent = 0
+# Initialize a boolean and indent level
+manySources = len(sourceList) > 1
+indent = 2 if manySources else 0
 
 # Loop on the ROOT files
 first_round_file = True
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
         rootFile = ROOT.TFile.Open(fileName)
-    objList,dirList = typeSelector(rootFile,pathSplitList)
+    objList,dirList = keyClassSpliter(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
     dirList.sort()
 
     # Paths of file
-    if len(sourceList) > 1: write("{0} :".format(fileName)+"\n")
+    if manySources: write("{0} :".format(fileName)+"\n")
 
     # Print with the rools style
     roolsPrint(keyList,optDict,indent)
 
-    # Initialize indent directory level
-    if len(pathSplitList) > 1: indentDir = 2
-    else : indentDir = 0
+    # Initialize a boolean and indent directory level
+    manyPathSplits = len(pathSplitList) > 1
+    indentDir = 2 if manyPathSplits else 0
 
     # Loop on the directories
     for pathSplit in dirList:
@@ -200,8 +204,8 @@ for fileName, pathSplitList in sourceList:
         keyList.sort()
 
         # Paths of object
-        if len(pathSplitList) > 1:
-            write("{0} :".format("/".join(pathSplit))+"\n",indent)
+        if manyPathSplits:
+            write("{0} :".format("/".join(pathSplit)),indent,end="\n")
 
         # Print with the rools style
         roolsPrint(keyList,optDict,indent+indentDir)

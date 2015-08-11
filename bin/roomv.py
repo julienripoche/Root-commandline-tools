@@ -5,10 +5,16 @@ from ROOT files to an other"""
 
 from cmdLineUtils import *
 
+# Help strings
+
+COMMAND_HELP = \
+    "Move objects from ROOT files to an other " + \
+    "(for more informations please look at the man page)."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOMV_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
@@ -31,8 +37,6 @@ destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
-del optDict["destPattern"]
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \

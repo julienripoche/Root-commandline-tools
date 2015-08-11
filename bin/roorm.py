@@ -5,10 +5,17 @@ objects from ROOT files"""
 
 from cmdLineUtils import *
 
+# Help strings
+COMMAND_HELP = \
+    "Remove objects from ROOT files " + \
+    "(for more informations please look at the man page)."
+I_HELP = \
+    "prompt before every removal."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROORM_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-i", help=I_HELP, action="store_true")
 args = parser.parse_args()
@@ -21,7 +28,6 @@ sourceList = \
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
 
 # Loop on the ROOT files
 for fileName, pathSplitList in sourceList:

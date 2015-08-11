@@ -24,10 +24,17 @@ def createDirectories(rootFile,pathSplit,optDict):
             if not currentPathSplit[-1] in objNameList:
                 createDirectory(rootFile,currentPathSplit)
 
+#Help strings
+COMMAND_HELP = \
+    "Add directories in a ROOT files " + \
+    "(for more informations please look at the man page)."
+PARENT_HELP = \
+    "make parent directories as needed, no error if existing."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOMKDIR_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("-p", "--parents", help=PARENT_HELP, action="store_true")
 args = parser.parse_args()
@@ -40,7 +47,6 @@ sourceList = \
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
 
 # Loop on the ROOT files
 for fileName, pathSplitList in sourceList:

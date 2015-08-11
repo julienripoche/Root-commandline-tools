@@ -5,10 +5,15 @@ from ROOT files into an other"""
 
 from cmdLineUtils import *
 
+#Help strings
+COMMAND_HELP = \
+    "Copy objects from ROOT files into an other " + \
+    "(for more informations please look at the man page)."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOCP_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
@@ -31,8 +36,6 @@ destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
-del optDict["destPattern"]
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \
@@ -50,7 +53,8 @@ for sourceFileName, sourcePathSplitList in sourceList:
         destFile
     ROOT.gROOT.GetListOfFiles().Remove(sourceFile) # Fast copy necessity
     for sourcePathSplit in sourcePathSplitList:
-        copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,len(sourcePathSplitList)==1)
+        copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit, \
+            len(sourceList)==1 and len(sourcePathSplitList)==1)
     if sourceFileName != destFileName:
         sourceFile.Close()
 destFile.Close()

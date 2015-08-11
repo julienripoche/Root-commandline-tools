@@ -28,10 +28,20 @@ def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
             smallTree.Fill()
     smallTree.Write()
 
+#Help strings
+COMMAND_HELP = \
+    "Copy subsets of trees from source ROOT files " + \
+    "to new trees on a destination ROOT file " + \
+    "(for more informations please look at the man page)."
+FIRST_EVENT_HELP = \
+    "specify the first event to copy."
+LAST_EVENT_HELP = \
+    "specify the last event to copy."
+
 ##### Beginning of the main code #####
 
 # Collect arguments with the module argparse
-parser = argparse.ArgumentParser(description=ROOEVENTSELECTOR_HELP)
+parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
@@ -56,8 +66,6 @@ destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
-del optDict["sourcePatternList"]
-del optDict["destPattern"]
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \
