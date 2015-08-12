@@ -176,6 +176,7 @@ def patternToPathSplitList(fileName,pattern):
         pathSplitList = newPathSplitList
     if pathSplitList == []: # no match
         logging.warning("Can't find {0} in {1}".format(pattern,fileName))
+    #len(set(lst)) == len(lst)
     #badSolution(pathSplitList,fileName) # same match
     return pathSplitList
 
@@ -196,6 +197,17 @@ def patternToFileNameAndPathSplitList(pattern,wildcards = True):
         for i in glob.iglob(patternSplit[0])] \
         if wildcards else \
         [os.path.expandvars(os.path.expanduser(patternSplit[0]))]
+
+    #fileList = []
+    #patternSplit = pattern.rsplit(":", 1)
+    #fileNameList = \
+    #    [os.path.expandvars(os.path.expanduser(i)) \
+    #    for i in glob.iglob(patternSplit[0])] \
+    #    if wildcards else \
+    #    [os.path.expandvars(os.path.expanduser(patternSplit[0]))]
+    #if fileNameList == []:
+    #    fileNameList == [patternSplit[0]]
+
     for fileName in fileNameList:
         # there is a pattern of path in the ROOT file
         if len(patternSplit)>1 : pathSplitList = \
@@ -291,7 +303,6 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
     for key in getKeyList(sourceFile,sourcePathSplit):
         if isDirectoryKey(key):
             changeDirectory(destFile,destPathSplit)
-            ## copy T dir dans T tree
             if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
                 ROOT.gDirectory.mkdir(key.GetName())
                 copyRootObjectRecursive(sourceFile, \
