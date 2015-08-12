@@ -17,37 +17,34 @@ def fileno(file_or_fd):
     return fd
 
 @contextmanager
-def stdoutRedirected(to=os.devnull, stdout=None):
-    if stdout is None:
-       stdout = sys.stdout
-
-    stdout_fd = fileno(stdout)
+def streamRedirected(actual_output=sys.stdout, to=os.devnull):
+    stdout_fd = fileno(actual_output)
     # copy stdout_fd before it is overwritten
     #NOTE: `copied` is inheritable on Windows when duplicating a standard stream
     with os.fdopen(os.dup(stdout_fd), 'wb') as copied: 
-        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        actual_output.flush()  # flush library buffers that dup2 knows nothing about
         try:
             os.dup2(fileno(to), stdout_fd)  # $ exec >&to
         except ValueError:  # filename
             with open(to, 'wb') as to_file:
                 os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
         try:
-            yield stdout # allow code to be run with the redirected stdout
+            yield actual_output # allow code to be run with the redirected stream
         finally:
-            # restore stdout to its previous value
+            # restore actual_output to its previous value
             #NOTE: dup2 makes stdout_fd inheritable unconditionally
-            stdout.flush()
+            actual_output.flush()
             os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
 
-def stderrRedirected(to=os.devnull, stdout=sys.stderr):
-    return stdoutRedirected(to, stdout)
+def stdoutRedirected():
+     return streamRedirected(sys.stdout, os.devnull)
 
-#not on all version of python...
-#with stdoutRedirected(), mergedStderrStdout():
+def stderrRedirected():
+     return streamRedirected(sys.stderr, os.devnull)
+
+#Not on all version of python...
+#with stdoutRedirected(), stderrRedirected():
     #...
-
-#def mergedStderrStdout():  # $ exec 2>&1
-#    return stdoutRedirected(to=sys.stdout, stdout=sys.stderr)
 
 # The end of stdoutRedirected function
 ##
