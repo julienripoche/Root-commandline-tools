@@ -9,6 +9,8 @@ from cmdLineUtils import *
 COMMAND_HELP = \
     "Copy objects from ROOT files into an other " + \
     "(for more informations please look at the man page)."
+RECURSIVE_HELP = \
+    "copy directories recursively"
 
 ##### Beginning of the main code #####
 
@@ -17,8 +19,10 @@ parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
-parser.add_argument("--replace", help="", action="store_true")
 parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")
+parser.add_argument("-r","--recursive", help=RECURSIVE_HELP, action="store_true")
+parser.add_argument("--replace", help="", action="store_true")
+
 args = parser.parse_args()
 
 # Create a list of tuples that contain source ROOT file names

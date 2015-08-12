@@ -63,7 +63,7 @@ testCommand("WebRools2", "rools -l http://root.cern.ch/files/pippa.root", "WebRo
 
 ############################## ROOCP TESTS ##############################
 shutil.copy("test.root","source.root")
-os.system("roocp source.root dest.root")
+os.system("roocp -r source.root dest.root")
 testCommand("SimpleRoocp", "rools dest.root", "SimpleRools.ref")
 testCommand("SimpleRoocp2", "rools dest.root:*", "SimpleRools2.ref")
 testCommand("SimpleRoocp3", "rools dest.root:tof", "SimpleRools3.ref")
@@ -85,7 +85,7 @@ else:
 
 ############################## ROOMV TESTS ##############################
 shutil.copy("test.root","source.root")
-os.system("roomv source.root dest.root")
+os.system("roomv -r source.root dest.root")
 testCommand("SimpleRoomv", "rools dest.root", "SimpleRools.ref")
 testCommand("SimpleRoomv2", "rools dest.root:*", "SimpleRools2.ref")
 testCommand("SimpleRoomv3", "rools dest.root:tof", "SimpleRools3.ref")
@@ -110,13 +110,13 @@ testCommand("SimpleRoorm", "roorm victim.root:hpx && rools victim.root", "Simple
 if os.path.isfile("victim.root"):
     os.remove("victim.root")
 shutil.copy("test.root","victim.root")
-testCommand("SimpleRoorm2", "roorm victim.root:tof/plane0 && rools victim.root:tof", "SimpleRoorm2.ref")
+testCommand("SimpleRoorm2", "roorm -r victim.root:tof/plane0 && rools victim.root:tof", "SimpleRoorm2.ref")
 if os.path.isfile("victim.root"):
     os.remove("victim.root")
 print "Test SimpleRoorm3",
 test_nb += 1
 shutil.copy("test.root","victim.root")
-os.system("roorm victim.root")
+os.system("roorm -r victim.root")
 if not os.path.isfile("victim.root"):
     print "SUCCESS"
 else:

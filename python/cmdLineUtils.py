@@ -129,6 +129,18 @@ def keyClassSpliter(rootFile,pathSplitList):
         else: objList.append(pathSplit)
     return objList,dirList
 
+#def badSolution(liste,fileName):
+#    """try to intercept list with double occurence"""
+#    liste.sort()
+#    for i,n in enumerate(liste):
+#        if len(liste)!=1:
+#            if i != len(liste)-1:
+#                if liste[i+1] == n:
+#                    logging.warning("{0} appears many times in {1}".format(n,fileName))
+#            else:
+#                if liste[0] == n:
+#                    logging.warning("{0} appears many times in {1}".format(n,fileName))
+
 def patternToPathSplitList(fileName,pattern):
     """Get the list of pathSplit of objects in the ROOT file
     corresponding to fileName that match with the pattern"""
@@ -164,6 +176,7 @@ def patternToPathSplitList(fileName,pattern):
         pathSplitList = newPathSplitList
     if pathSplitList == []: # no match
         logging.warning("Can't find {0} in {1}".format(pattern,fileName))
+    #badSolution(pathSplitList,fileName) # same match
     return pathSplitList
 
 def patternToFileNameAndPathSplitList(pattern,wildcards = True):
@@ -193,6 +206,8 @@ def patternToFileNameAndPathSplitList(pattern,wildcards = True):
         fileList.append((fileName,pathSplitList))
     return fileList
 
+OMITTING_FILE_ERROR = "omitting file '{0}'"
+OMITTING_DIRECTORY_ERROR = "omitting directory '{0}'"
 TARGET_ERROR = "target '{0}' is not a directory"
 OVERWRITE_ERROR = "cannot overwrite non-directory '{0}' with directory '{1}'"
 
@@ -201,7 +216,16 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,one
     written to be as unix-like as possible"""
     isMultipleInput = not (oneSource and sourcePathSplit != [])
     toContinue = True
-    if isMultipleInput:
+    if not optDict["recursive"]:
+        if sourcePathSplit == []:
+            logging.warning(OMITTING_FILE_ERROR.format( \
+                sourceFile.GetName()))
+            toContinue = False
+        elif isDirectory(sourceFile,sourcePathSplit):
+            logging.warning(OMITTING_DIRECTORY_ERROR.format( \
+                sourcePathSplit[-1]))
+            toContinue = False
+    elif isMultipleInput:
         if destPathSplit != [] and not (isExisting(destFile,destPathSplit) \
             and isDirectory(destFile,destPathSplit)):
             logging.warning(TARGET_ERROR.format(destPathSplit[-1]))
@@ -215,7 +239,10 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,one
         if sourcePathSplit != []:
             key = getKey(sourceFile,sourcePathSplit)
             if isDirectoryKey(key):
-                if setName != "":
+                if not optDict["recursive"]:
+                    logging.warning(OMITTING_DIRECTORY_ERROR.format( \
+                        key.GetName()))
+                elif setName != "":
                     changeDirectory(destFile,destPathSplit)
                     ROOT.gDirectory.mkdir(setName)
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
@@ -247,8 +274,12 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,one
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
                         destFile,destPathSplit[:-1],optDict)
         else:
-            copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                destFile,destPathSplit,optDict)
+            if not optDict["recursive"]:
+                logging.warning(OMITTING_FILE_ERROR.format( \
+                    sourceFile.GetName()))
+            else:
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit,optDict)
 
 def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,setName=""):
     """Copy objects from a file or directory (sourceFile,sourcePathSplit)
@@ -296,23 +327,33 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
     changeDirectory(destFile,destPathSplit)
     ROOT.gDirectory.SaveSelf(ROOT.kTRUE)
 
-def deleteRootObject(rootFile,pathSplit,optDict={'i':False}):
+FILE_REMOVE_ERROR = "cannot remove '{0}': Is a ROOT file"
+DIRECTORY_REMOVE_ERROR = "cannot remove '{0}': Is a directory"
+
+def deleteRootObject(rootFile,pathSplit,optDict={'interactive':False,'recursive':False}):
     """Remove the object (rootFile,pathSplit)
-    -i prompt before every removal"""
-    answer = 'y'
-    if optDict['i']: answer = \
-       raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
-                 .format("/".join(pathSplit),rootFile.GetName())) \
-       if pathSplit != [] else \
-       raw_input("Are you sure to remove '{0}' ? (y/n) : " \
-                 .format(rootFile.GetName()))
-    if answer.lower() == 'y':
-        if pathSplit != []:
-            changeDirectory(rootFile,pathSplit[:-1])
-            ROOT.gDirectory.Delete(pathSplit[-1]+";*")
+    -interactive : prompt before every removal
+    -recursive : allow directory (and ROOT file) removal"""
+    if not optDict["recursive"] and isDirectory(rootFile,pathSplit):
+        if pathSplit == []:
+            logging.warning(FILE_REMOVE_ERROR.format(rootFile.GetName()))
         else:
-            rootFile.Close()
-            os.remove(rootFile.GetName())
+            logging.warning(DIRECTORY_REMOVE_ERROR.format(pathSplit[-1]))
+    else:
+        answer = 'y'
+        if optDict['interactive']: answer = \
+           raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
+                     .format("/".join(pathSplit),rootFile.GetName())) \
+           if pathSplit != [] else \
+           raw_input("Are you sure to remove '{0}' ? (y/n) : " \
+                     .format(rootFile.GetName()))
+        if answer.lower() == 'y':
+            if pathSplit != []:
+                changeDirectory(rootFile,pathSplit[:-1])
+                ROOT.gDirectory.Delete(pathSplit[-1]+";*")
+            else:
+                rootFile.Close()
+                os.remove(rootFile.GetName())
 
 # Help strings for ROOT command line tools
 SOURCE_HELP = \
