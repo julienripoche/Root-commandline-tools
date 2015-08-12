@@ -2,12 +2,61 @@
 
 """Contain utils for ROOT command line tools"""
 
-from redirectEscapeCharacters import *
+##
+# The code of the these functions can be found here : http://stackoverflow.com/questions/4675728/redirect-stdout-to-a-file-in-python/22434262#22434262
+# Thanks J.F. Sebastian !!
+
+from contextlib import contextmanager
+import os
+import sys
+
+def fileno(file_or_fd):
+    fd = getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
+    if not isinstance(fd, int):
+        raise ValueError("Expected a file (`.fileno()`) or a file descriptor")
+    return fd
+
+@contextmanager
+def stdoutRedirected(to=os.devnull, stdout=None):
+    if stdout is None:
+       stdout = sys.stdout
+
+    stdout_fd = fileno(stdout)
+    # copy stdout_fd before it is overwritten
+    #NOTE: `copied` is inheritable on Windows when duplicating a standard stream
+    with os.fdopen(os.dup(stdout_fd), 'wb') as copied: 
+        stdout.flush()  # flush library buffers that dup2 knows nothing about
+        try:
+            os.dup2(fileno(to), stdout_fd)  # $ exec >&to
+        except ValueError:  # filename
+            with open(to, 'wb') as to_file:
+                os.dup2(to_file.fileno(), stdout_fd)  # $ exec > to
+        try:
+            yield stdout # allow code to be run with the redirected stdout
+        finally:
+            # restore stdout to its previous value
+            #NOTE: dup2 makes stdout_fd inheritable unconditionally
+            stdout.flush()
+            os.dup2(copied.fileno(), stdout_fd)  # $ exec >&copied
+
+def stderrRedirected(to=os.devnull, stdout=sys.stderr):
+    return stdoutRedirected(to, stdout)
+
+#not on all version of python...
+#with stdoutRedirected(), mergedStderrStdout():
+    #...
+
+#def mergedStderrStdout():  # $ exec 2>&1
+#    return stdoutRedirected(to=sys.stdout, stdout=sys.stderr)
+
+# The end of stdoutRedirected function
+##
+
+
 # redirect output (escape characters during ROOT importation...)
 with stdoutRedirected():
     import ROOT
 
-from getTerminalSize import *
 import argparse
 import glob
 import os
@@ -18,6 +67,10 @@ import logging
 def changeDirectory(rootFile,pathSplit):
     """Change the current directory (ROOT.gDirectory)
     by the corresponding directory (rootFile,pathSplit)"""
+    # This function has no protection because 'rootFile' should be
+    # a real ROOT file and 'pathSplit' a real directory path.
+    # If an error occurs in this function it means that the
+    # arguments are defective.
     rootFile.cd()
     for directoryName in pathSplit:
         ROOT.gDirectory.Get(directoryName).cd()
@@ -116,12 +169,12 @@ def patternToPathSplitList(fileName,pattern):
         logging.warning("Can't find {0} in {1}".format(pattern,fileName))
     return pathSplitList
 
-def patternToFileNameAndPathSplitList(pattern,regexp = True):
+def patternToFileNameAndPathSplitList(pattern,wildcards = True):
     """Get the list of tuple containing both :
     - ROOT file name
     - list of path splited (in the corresponding file)
       of object that matches
-    Use regular expression by default"""
+    Use unix wildcards by default"""
     fileList = []
     patternSplit = pattern.split(":")
     if patternSplit[0] in ["http","https","ftp"]: # file from the web
@@ -131,13 +184,13 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
     else: fileNameList = \
         [os.path.expandvars(os.path.expanduser(i)) \
         for i in glob.iglob(patternSplit[0])] \
-        if regexp else \
+        if wildcards else \
         [os.path.expandvars(os.path.expanduser(patternSplit[0]))]
     for fileName in fileNameList:
         # there is a pattern of path in the ROOT file
         if len(patternSplit)>1 : pathSplitList = \
            patternToPathSplitList(fileName,patternSplit[1]) \
-           if regexp else \
+           if wildcards else \
            [[n for n in patternSplit[1].split("/") if n != ""]]
         else: pathSplitList = [[]] # whole ROOT file
         fileList.append((fileName,pathSplitList))
@@ -146,7 +199,7 @@ def patternToFileNameAndPathSplitList(pattern,regexp = True):
 TARGET_ERROR = "target '{0}' is not a directory"
 OVERWRITE_ERROR = "cannot overwrite non-directory '{0}' with directory '{1}'"
 
-def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneSource=False):
+def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,oneSource=False):
     """Initialize the recursive function 'copyRootObjectRecursive',
     written to be as unix-like as possible"""
     isMultipleInput = not (oneSource and sourcePathSplit != [])
@@ -169,17 +222,17 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneSource=F
                     changeDirectory(destFile,destPathSplit)
                     ROOT.gDirectory.mkdir(setName)
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit+[setName])
+                        destFile,destPathSplit+[setName],optDict)
                 elif isDirectory(destFile,destPathSplit):
                     changeDirectory(destFile,destPathSplit)
                     if not ROOT.gDirectory.GetListOfKeys().Contains( \
                         key.GetName()):
                         ROOT.gDirectory.mkdir(key.GetName())
                         copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                            destFile,destPathSplit+[key.GetName()])
+                            destFile,destPathSplit+[key.GetName()],optDict)
                     elif isDirectory(destFile,destPathSplit+[key.GetName()]):
                         copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                            destFile,destPathSplit+[key.GetName()])
+                            destFile,destPathSplit+[key.GetName()],optDict)
                     else:
                         logging.warning(OVERWRITE_ERROR.format( \
                             destPathSplit[-1]+"/"+key.GetName(),key.GetName()))
@@ -189,18 +242,18 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,oneSource=F
             else:
                 if setName != "":  
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit,setName)
+                        destFile,destPathSplit,optDict,setName)
                 elif isDirectory(destFile,destPathSplit):
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit)
+                        destFile,destPathSplit,optDict)
                 else:
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit[:-1])
+                        destFile,destPathSplit[:-1],optDict)
         else:
             copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                destFile,destPathSplit)
+                destFile,destPathSplit,optDict)
 
-def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,setName=""):
+def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,setName=""):
     """Copy objects from a file or directory (sourceFile,sourcePathSplit)
     to an other file or directory (destFile,destPathSplit)
     - Has the will to be unix-like
@@ -215,17 +268,20 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,se
                 ROOT.gDirectory.mkdir(key.GetName())
                 copyRootObjectRecursive(sourceFile, \
                     sourcePathSplit+[key.GetName()], \
-                    destFile,destPathSplit+[key.GetName()])
+                    destFile,destPathSplit+[key.GetName()],optDict)
             elif isDirectory(destFile,destPathSplit+[key.GetName()]):
                 copyRootObjectRecursive(sourceFile, \
                     sourcePathSplit+[key.GetName()], \
-                    destFile,destPathSplit+[key.GetName()])
+                    destFile,destPathSplit+[key.GetName()],optDict)
             else:
                 logging.warning(OVERWRITE_ERROR.format( \
                     destPathSplit[-1]+"/"+key.GetName(),key.GetName()))
         elif isTreeKey(key):
             T = key.GetMotherDir().Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
+            if optDict["replace"] and ROOT.gDirectory \
+                .GetListOfKeys().Contains(T.GetName()):
+                ROOT.gDirectory.Delete(T.GetName()+";*")
             newT = T.CloneTree(-1,"fast")
             if setName != "":
                 newT.SetName(setName)
@@ -233,9 +289,9 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,se
         else:
             obj = key.ReadObj()
             changeDirectory(destFile,destPathSplit)
-            ## Option replace if existing ?
-            #if ROOT.gDirectory.GetListOfKeys().Contains(obj.GetName()):
-            #    ROOT.gDirectory.Delete(obj.GetName()+";*")
+            if optDict["replace"] and ROOT.gDirectory \
+                .GetListOfKeys().Contains(obj.GetName()):
+                ROOT.gDirectory.Delete(obj.GetName()+";*")
             if setName != "":
                 obj.SetName(setName)
             obj.Write()
@@ -243,7 +299,7 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,se
     changeDirectory(destFile,destPathSplit)
     ROOT.gDirectory.SaveSelf(ROOT.kTRUE)
 
-def deleteRootObject(rootFile,pathSplit,optDict):
+def deleteRootObject(rootFile,pathSplit,optDict={'i':False}):
     """Remove the object (rootFile,pathSplit)
     -i prompt before every removal"""
     answer = 'y'

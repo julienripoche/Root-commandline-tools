@@ -4,7 +4,7 @@
 
 from cmdLineUtils import *
 
-#Help strings
+# Help strings
 COMMAND_HELP = \
     "Open a ROOT file on a TBrowser " + \
     "(for more informations please look at the man page)."

@@ -2,7 +2,7 @@
 
 """Test module for pattern to tuple"""
 
-from redirectEscapeCharacters import *
+from cmdLineUtils import *
 
 with stderrRedirected():
     from cmdLineUtils import patternToFileNameAndPathSplitList

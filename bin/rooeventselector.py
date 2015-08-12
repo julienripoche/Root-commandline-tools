@@ -28,7 +28,7 @@ def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
             smallTree.Fill()
     smallTree.Write()
 
-#Help strings
+# Help strings
 COMMAND_HELP = \
     "Copy subsets of trees from source ROOT files " + \
     "to new trees on a destination ROOT file " + \
@@ -60,12 +60,17 @@ sourceList = \
 # and a path in this file
 destList = \
     patternToFileNameAndPathSplitList( \
-    args.destPattern,regexp=False)
+    args.destPattern,wildcards=False)
 destFileName,destPathSplitList = destList[0]
 destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
+
+# Change the compression settings only on non existing file
+if optDict["compress"] and os.path.isfile(destFileName):
+    logging.error("can't change compression settings on existing file")
+    sys.exit()
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \

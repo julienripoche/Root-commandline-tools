@@ -24,7 +24,7 @@ def createDirectories(rootFile,pathSplit,optDict):
             if not currentPathSplit[-1] in objNameList:
                 createDirectory(rootFile,currentPathSplit)
 
-#Help strings
+# Help strings
 COMMAND_HELP = \
     "Add directories in a ROOT files " + \
     "(for more informations please look at the man page)."
@@ -43,7 +43,7 @@ args = parser.parse_args()
 # and lists of path in these files
 sourceList = \
     [tup for pattern in args.sourcePatternList \
-    for tup in patternToFileNameAndPathSplitList(pattern,regexp=False)]
+    for tup in patternToFileNameAndPathSplitList(pattern,wildcards=False)]
 
 # Create a dictionnary with options
 optDict = vars(args)

@@ -6,7 +6,7 @@ from cmdLineUtils import *
 
 formatList = ["ps","eps","pdf","svg","tex","gif","xpm","png","jpg"]
 
-#Help strings
+# Help strings
 COMMAND_HELP = \
     "Print ROOT files contents on ps,pdf or pictures files " + \
     "(for more informations please look at the man page)."

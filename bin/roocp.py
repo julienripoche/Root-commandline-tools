@@ -5,7 +5,7 @@ from ROOT files into an other"""
 
 from cmdLineUtils import *
 
-#Help strings
+# Help strings
 COMMAND_HELP = \
     "Copy objects from ROOT files into an other " + \
     "(for more informations please look at the man page)."
@@ -17,6 +17,7 @@ parser = argparse.ArgumentParser(description=COMMAND_HELP)
 parser.add_argument("sourcePatternList", help=SOURCES_HELP, nargs='+')
 parser.add_argument("destPattern", help=DEST_HELP)
 parser.add_argument("-c","--compress", type=int, help=COMPRESS_HELP)
+parser.add_argument("--replace", help="", action="store_true")
 parser.add_argument("--recreate", help=RECREATE_HELP, action="store_true")
 args = parser.parse_args()
 
@@ -30,12 +31,17 @@ sourceList = \
 # and a path in this file
 destList = \
     patternToFileNameAndPathSplitList( \
-    args.destPattern,regexp=False)
+    args.destPattern,wildcards=False)
 destFileName,destPathSplitList = destList[0]
 destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
+
+# Change the compression settings only on non existing file
+if optDict["compress"] and os.path.isfile(destFileName):
+    logging.error("can't change compression settings on existing file")
+    sys.exit()
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \
@@ -53,8 +59,9 @@ for sourceFileName, sourcePathSplitList in sourceList:
         destFile
     ROOT.gROOT.GetListOfFiles().Remove(sourceFile) # Fast copy necessity
     for sourcePathSplit in sourcePathSplitList:
-        copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit, \
-            len(sourceList)==1 and len(sourcePathSplitList)==1)
+        oneSource = len(sourceList)==1 and len(sourcePathSplitList)==1
+        copyRootObject(sourceFile,sourcePathSplit, \
+            destFile,destPathSplit,optDict,oneSource)
     if sourceFileName != destFileName:
         sourceFile.Close()
 destFile.Close()
