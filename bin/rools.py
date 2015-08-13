@@ -32,6 +32,14 @@ def isSpecial(ansiCode,string):
     if isTerminal() and not isWin32(): return ansiCode+string+ANSI_END
     else: return string
 
+def keyListSort(keyList):
+    """Sort list of TKey by their names ignoring the case"""
+    keyList.sort(key=lambda y: y.GetName().lower())
+
+def tupleListSort(tupleList):
+    """Sort list of tuple by their first elements ignoring the case"""
+    tupleList.sort(key=lambda y: y[0].lower())
+
 def write(string,indent=0,end=""):
     """Use sys.stdout.write to write the string with an indentation
     equal to indent and specifying the end character"""
@@ -279,14 +287,15 @@ indent = 2 if manySources else 0
 
 # Loop on the ROOT files
 first_round_file = True
+tupleListSort(sourceList)
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
         rootFile = ROOT.TFile(fileName)
     zombieExclusion(rootFile)
     objList,dirList = keyClassSpliter(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
-    keyList.sort()
-    dirList.sort()
+    keyListSort(keyList)
+    dirList.sort() # need improvement to ignore the case
 
     # Paths of file
     if manySources: write("{0} :".format(fileName)+"\n")
@@ -301,7 +310,7 @@ for fileName, pathSplitList in sourceList:
     # Loop on the directories
     for pathSplit in dirList:
         keyList = getKeyList(rootFile,pathSplit)
-        keyList.sort()
+        keyListSort(keyList)
 
         # Paths of object
         if manyPathSplits:
