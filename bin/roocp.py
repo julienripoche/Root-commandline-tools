@@ -1,7 +1,11 @@
 #!/usr/bin/python
 
-"""Command line to copy objects
-from ROOT files into an other"""
+# ROOT command line tools: roocp
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
+"""Command line to copy objects from ROOT files into an other"""
 
 from cmdLineUtils import *
 

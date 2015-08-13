@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools: roomkdir
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Command line to add directories in ROOT files"""
 
 from cmdLineUtils import *

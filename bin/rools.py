@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools: rools
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Command line to dump ROOT files contents to terminal"""
 
 from cmdLineUtils import *
@@ -8,6 +13,10 @@ ANSI_BOLD = "\x1B[1m"
 ANSI_BLUE = "\x1B[34m"
 ANSI_GREEN = "\x1B[32m"
 ANSI_END = "\x1B[0m"
+
+ANSI_BOLD_LENGTH = len(ANSI_BOLD+ANSI_END)
+ANSI_BLUE_LENGTH = len(ANSI_BLUE+ANSI_END)
+ANSI_GREEN_LENGTH = len(ANSI_GREEN+ANSI_END)
 
 def isTerminal():
     """Return True if the output is a terminal"""
@@ -94,7 +103,8 @@ def roolsPrintLongLs(keyList,optDict,indent):
             recursifTreePrinter(tree,indent+2)
 
 ##
-# The code of the getTerminalSize function can be found here : https://gist.github.com/jtriley/1108174
+# The code of the getTerminalSize function can be found here :
+# https://gist.github.com/jtriley/1108174
 # Thanks jtriley !!
 
 import os
@@ -214,16 +224,18 @@ def roolsPrintSimpleLs(keyList,indent):
             if not isTerminal(): write( \
                 key.GetName().ljust(col_widths[i%ncol]))
             elif isDirectoryKey(keyList[i]): write( \
-                isSpecial(ANSI_BLUE,key.GetName()).ljust(col_widths[i%ncol] + 9))
-                # len(ANSI_BLUE+ANSI_END) = len("\x1B[34m"+"\x1B[0m") = 9
+                isSpecial(ANSI_BLUE,key.GetName()).ljust( \
+                    col_widths[i%ncol] + ANSI_BLUE_LENGTH))
             elif isTreeKey(keyList[i]): write( \
-                isSpecial(ANSI_GREEN,key.GetName()).ljust(col_widths[i%ncol] + 9))
-                # len(ANSI_GREEN+ANSI_END) = len("\x1B[32m"+"\x1B[0m") = 9
+                isSpecial(ANSI_GREEN,key.GetName()).ljust( \
+                    col_widths[i%ncol] + ANSI_GREEN_LENGTH))
             else: write(key.GetName().ljust(col_widths[i%ncol]))
         else: # No spaces after the last element of the line or of the list
             if not isTerminal(): write(key.GetName())
-            elif isDirectoryKey(keyList[i]): write(isSpecial(ANSI_BLUE,key.GetName()))
-            elif isTreeKey(keyList[i]): write(isSpecial(ANSI_GREEN,key.GetName()))
+            elif isDirectoryKey(keyList[i]):
+                write(isSpecial(ANSI_BLUE, key.GetName()))
+            elif isTreeKey(keyList[i]):
+                write(isSpecial(ANSI_GREEN, key.GetName()))
             else: write(key.GetName())
             write('\n')
 

@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools: rooeventselector
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Command line to copy subsets of trees from source
 ROOT files to new trees on a destination ROOT file"""
 

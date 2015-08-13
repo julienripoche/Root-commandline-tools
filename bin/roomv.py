@@ -1,7 +1,11 @@
 #!/usr/bin/python
 
-"""Command line to move objects
-from ROOT files to an other"""
+# ROOT command line tools: roomv
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
+"""Command line to move objects from ROOT files to an other"""
 
 from cmdLineUtils import *
 

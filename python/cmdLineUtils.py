@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools module: cmdLineUtils
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Contain utils for ROOT command line tools"""
 
 ##

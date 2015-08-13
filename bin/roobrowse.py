@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools: roobrowse
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Command line to open a ROOT file on a TBrowser"""
 
 from cmdLineUtils import *

@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+# ROOT command line tools: rooprint
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
 """Command line to print ROOT files contents on ps,pdf or png,gif..."""
 
 from cmdLineUtils import *

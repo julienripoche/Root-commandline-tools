@@ -1,7 +1,11 @@
 #!/usr/bin/python
 
-"""Command line to remove
-objects from ROOT files"""
+# ROOT command line tools: roorm
+# Author: Julien Ripoche
+# Mail: julien.ripoche@u-psud.fr
+# Date: 13/08/15
+
+"""Command line to remove objects from ROOT files"""
 
 from cmdLineUtils import *
 
