@@ -18,7 +18,8 @@ args = parser.parse_args()
 
 if args.sourceName:
     with stderrRedirected():
-        rootFile = ROOT.TFile.Open(args.sourceName)
+        rootFile = ROOT.TFile(args.sourceName)
+    zombieExclusion(rootFile)
     rootFile.Browse(ROOT.TBrowser())
     ROOT.PyROOT.TPyROOTApplication.Run(ROOT.gApplication)
     rootFile.Close()

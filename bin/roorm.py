@@ -35,7 +35,7 @@ optDict = vars(args)
 # Loop on the ROOT files
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
-        rootFile = ROOT.TFile.Open(fileName,"update")
+        rootFile = ROOT.TFile(fileName,"update")
     for pathSplit in pathSplitList:
         deleteRootObject(rootFile,pathSplit,optDict)
     rootFile.Close()

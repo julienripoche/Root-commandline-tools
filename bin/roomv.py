@@ -44,25 +44,26 @@ destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
+compressOptionValue = optDict["compress"]
 
 # Change the compression settings only on non existing file
-if optDict["compress"] and os.path.isfile(destFileName):
+if compressOptionValue != None and os.path.isfile(destFileName):
     logging.error("can't change compression settings on existing file")
     sys.exit()
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \
-    ROOT.TFile.Open(destFileName,"recreate") \
+    ROOT.TFile(destFileName,"recreate") \
     if optDict["recreate"] else \
-    ROOT.TFile.Open(destFileName,"update")
-if optDict["compress"]: destFile.SetCompressionSettings(optDict["compress"])
+    ROOT.TFile(destFileName,"update")
+if compressOptionValue != None: destFile.SetCompressionSettings(compressOptionValue)
 ROOT.gROOT.GetListOfFiles().Remove(destFile) # Fast copy necessity
 
 
 # Loop on the root files
 for sourceFileName, sourcePathSplitList in sourceList:
     with stderrRedirected(): sourceFile = \
-        ROOT.TFile.Open(sourceFileName,"update") \
+        ROOT.TFile(sourceFileName,"update") \
         if sourceFileName != destFileName else \
         destFile
     ROOT.gROOT.GetListOfFiles().Remove(sourceFile) # Fast copy necessity

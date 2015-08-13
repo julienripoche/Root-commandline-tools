@@ -110,6 +110,15 @@ def isTree(rootFile,pathSplit):
     if pathSplit == []: return False # the object is the rootFile itself
     else: return isTreeKey(getKey(rootFile,pathSplit))
 
+ROOT_FILE_ERROR = "'{0}' is not a ROOT file"
+
+def zombieExclusion(rootFile):
+    """Print an error message and exit
+    if rootFile is a zombie"""
+    if rootFile.IsZombie():
+        logging.error(ROOT_FILE_ERROR.format(rootFile.GetName()))
+        sys.exit()
+
 def getKeyList(rootFile,pathSplit):
     """Get the list of key of the directory (rootFile,pathSplit),
     if (rootFile,pathSplit) is not a directory then get the key"""
@@ -129,17 +138,26 @@ def keyClassSpliter(rootFile,pathSplitList):
         else: objList.append(pathSplit)
     return objList,dirList
 
-#def badSolution(liste,fileName):
-#    """try to intercept list with double occurence"""
-#    liste.sort()
-#    for i,n in enumerate(liste):
-#        if len(liste)!=1:
-#            if i != len(liste)-1:
-#                if liste[i+1] == n:
-#                    logging.warning("{0} appears many times in {1}".format(n,fileName))
-#            else:
-#                if liste[0] == n:
-#                    logging.warning("{0} appears many times in {1}".format(n,fileName))
+def asHashableList(pathSplitList):
+    """Make hashable list of pathSplitList joining with '/'"""
+    hashableList = []
+    for n in pathSplitList:
+        hashableList.append("/".join(n))
+    return hashableList
+
+MANY_OCCURENCE_WARNING = "'{0}' appears many times in '{1}'"
+
+def manyOccurenceWarning(hashableList,fileName):
+    """Search for double occurence of the same object name"""
+    hashableList.sort()
+    for i,n in enumerate(hashableList):
+        if len(hashableList)!=1:
+            if i != len(hashableList)-1:
+                if hashableList[i+1] == n:
+                    logging.warning(MANY_OCCURENCE_WARNING.format(n,fileName))
+            else:
+                if hashableList[0] == n:
+                    logging.warning(MANY_OCCURENCE_WARNING.format(n,fileName))
 
 def patternToPathSplitList(fileName,pattern):
     """Get the list of pathSplit of objects in the ROOT file
@@ -150,7 +168,8 @@ def patternToPathSplitList(fileName,pattern):
     if patternSplit == []: return [[]]
     # redirect output (missing dictionary for class...)
     with stderrRedirected():
-        rootFile = ROOT.TFile.Open(fileName)
+        rootFile = ROOT.TFile(fileName)
+    zombieExclusion(rootFile)
     pathSplitList = [[]]
     for patternPiece in patternSplit:
         newPathSplitList = []
@@ -174,10 +193,11 @@ def patternToPathSplitList(fileName,pattern):
             #        for branch in T.GetListOfBranches() \
             #        if fnmatch.fnmatch(branch.GetName(),patternPiece)])
         pathSplitList = newPathSplitList
-    if pathSplitList == []: # no match
-        logging.warning("Can't find {0} in {1}".format(pattern,fileName))
-    #len(set(lst)) == len(lst)
-    #badSolution(pathSplitList,fileName) # same match
+    if pathSplitList == []: # no match...
+        logging.warning("can't find {0} in {1}".format(pattern,fileName))
+    hashableList = asHashableList(pathSplitList)
+    if len(set(hashableList)) != len(hashableList): # same match...
+        manyOccurenceWarning(hashableList,fileName)
     return pathSplitList
 
 def patternToFileNameAndPathSplitList(pattern,wildcards = True):
@@ -226,9 +246,10 @@ OVERWRITE_ERROR = "cannot overwrite non-directory '{0}' with directory '{1}'"
 def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,oneSource=False):
     """Initialize the recursive function 'copyRootObjectRecursive',
     written to be as unix-like as possible"""
+    recursiveOption = optDict["recursive"]
     isMultipleInput = not (oneSource and sourcePathSplit != [])
     toContinue = True
-    if not optDict["recursive"]:
+    if not recursiveOption:
         if sourcePathSplit == []:
             logging.warning(OMITTING_FILE_ERROR.format( \
                 sourceFile.GetName()))
@@ -251,7 +272,7 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,one
         if sourcePathSplit != []:
             key = getKey(sourceFile,sourcePathSplit)
             if isDirectoryKey(key):
-                if not optDict["recursive"]:
+                if not recursiveOption:
                     logging.warning(OMITTING_DIRECTORY_ERROR.format( \
                         key.GetName()))
                 elif setName != "":
@@ -286,7 +307,7 @@ def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,one
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
                         destFile,destPathSplit[:-1],optDict)
         else:
-            if not optDict["recursive"]:
+            if not recursiveOption:
                 logging.warning(OMITTING_FILE_ERROR.format( \
                     sourceFile.GetName()))
             else:
@@ -300,6 +321,7 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
     - that's a recursive function
     - Python adaptation of a root input/output tutorial :
       $ROOTSYS/tutorials/io/copyFiles.C"""
+    replaceOption = optDict["replace"]
     for key in getKeyList(sourceFile,sourcePathSplit):
         if isDirectoryKey(key):
             changeDirectory(destFile,destPathSplit)
@@ -318,7 +340,7 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
         elif isTreeKey(key):
             T = key.GetMotherDir().Get(key.GetName()+";"+str(key.GetCycle()))
             changeDirectory(destFile,destPathSplit)
-            if optDict["replace"] and ROOT.gDirectory \
+            if replaceOption and ROOT.gDirectory \
                 .GetListOfKeys().Contains(T.GetName()):
                 ROOT.gDirectory.Delete(T.GetName()+";*")
             newT = T.CloneTree(-1,"fast")
@@ -328,7 +350,7 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
         else:
             obj = key.ReadObj()
             changeDirectory(destFile,destPathSplit)
-            if optDict["replace"] and ROOT.gDirectory \
+            if replaceOption and ROOT.gDirectory \
                 .GetListOfKeys().Contains(obj.GetName()):
                 ROOT.gDirectory.Delete(obj.GetName()+";*")
             if setName != "":
@@ -366,15 +388,23 @@ def deleteRootObject(rootFile,pathSplit,optDict={'interactive':False,'recursive'
                 rootFile.Close()
                 os.remove(rootFile.GetName())
 
+##
 # Help strings for ROOT command line tools
+
+# Arguments
 SOURCE_HELP = \
     "path of the source."
 SOURCES_HELP = \
     "path of the source(s)."
 DEST_HELP = \
     "path of the destination."
+
+# Options
 COMPRESS_HELP = \
     "change the compression settings of the destination file" + \
     "(if not already existed)."
 RECREATE_HELP = \
     "recreate the destination file."
+
+# End of help strings
+##

@@ -42,6 +42,11 @@ sourceList = \
 
 # Create a dictionnary with options
 optDict = vars(args)
+directoryOptionValue = optDict["directory"]
+drawOptionValue = optDict["draw"]
+formatOptionValue = optDict["format"]
+outputOptionValue = optDict["output"]
+sizeOptionValue = optDict["size"]
 
 # Verbose option
 if not optDict["verbose"]:
@@ -51,9 +56,9 @@ if not optDict["verbose"]:
 ROOT.gROOT.SetBatch()
 
 # Initialize the canvas
-if optDict["size"]:
+if sizeOptionValue:
     try:
-        width,height = optDict["size"].split("x")
+        width,height = sizeOptionValue.split("x")
         width = int(width)
         height = int(height)
     except ValueError:
@@ -64,34 +69,35 @@ else:
     canvas = ROOT.TCanvas("canvas")
 
 # Take the format of the output file (format option)
-if not optDict["format"] and optDict["output"]:
-    fileName = optDict["output"]
+if not formatOptionValue and outputOptionValue:
+    fileName = outputOptionValue
     fileFormat = fileName.split(".")[-1]
-    optDict["format"] = fileFormat
+    formatOptionValue = fileFormat
 
 # Use pdf as default format
-if not optDict["format"]: optDict["format"] = "pdf"
+if not formatOptionValue: formatOptionValue = "pdf"
 
 # Create the output directory (directory option)
-if optDict["directory"]:
-    if not os.path.isdir(os.path.join(os.getcwd(),optDict["directory"])):
-        os.mkdir(optDict["directory"])
+if directoryOptionValue:
+    if not os.path.isdir(os.path.join(os.getcwd(),directoryOptionValue)):
+        os.mkdir(directoryOptionValue)
 
 # Make the output name, begin to print (output option)
-if optDict["output"]:
-    if optDict["format"] in ['ps','pdf']:
-        outputFileName = optDict["output"]
-        if optDict["directory"]: outputFileName = \
-           optDict["directory"] + "/" + outputFileName
-        canvas.Print(outputFileName+"[",optDict["format"])
+if outputOptionValue:
+    if formatOptionValue in ['ps','pdf']:
+        outputFileName = outputOptionValue
+        if directoryOptionValue: outputFileName = \
+           directoryOptionValue + "/" + outputFileName
+        canvas.Print(outputFileName+"[",formatOptionValue)
     else:
-        print("Can't merge pictures, only postscript or pdf files")
-        optDict["output"] = ""
+        logging.warning("can't merge pictures, only postscript or pdf files")
+        outputOptionValue = None
 
 # Loop on the root files
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
-        rootFile = ROOT.TFile.Open(fileName)
+        rootFile = ROOT.TFile(fileName)
+    zombieExclusion(rootFile)
     # Fill the key list (almost the same as in rools)
     objList,dirList = keyClassSpliter(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
@@ -103,33 +109,33 @@ for fileName, pathSplitList in sourceList:
         if isTreeKey(key):
             obj = key.ReadObj()
             for branch in obj.GetListOfBranches():
-                if not optDict["output"]:
+                if not outputOptionValue:
                     outputFileName = \
-                        key.GetName() + "_" + branch.GetName() + "." +optDict["format"]
-                    if optDict["directory"]:
+                        key.GetName() + "_" + branch.GetName() + "." +formatOptionValue
+                    if directoryOptionValue:
                         outputFileName = os.path.join( \
-                            optDict["directory"],outputFileName)
-                obj.Draw(optDict["draw"])
-                if optDict["output"] or optDict["format"] == 'pdf':
+                            directoryOptionValue,outputFileName)
+                obj.Draw(drawOptionValue)
+                if outputOptionValue or formatOptionValue == 'pdf':
                     objTitle = "Title:"+branch.GetName()+" : "+branch.GetTitle()
                     canvas.Print(outputFileName,objTitle)
                 else:
-                    canvas.Print(outputFileName,optDict["format"])
+                    canvas.Print(outputFileName,formatOptionValue)
         else:
-            if not optDict["output"]:
-                outputFileName = key.GetName() + "." +optDict["format"]
-                if optDict["directory"]:
+            if not outputOptionValue:
+                outputFileName = key.GetName() + "." +formatOptionValue
+                if directoryOptionValue:
                     outputFileName = os.path.join( \
-                        optDict["directory"],outputFileName)
+                        directoryOptionValue,outputFileName)
             obj = key.ReadObj()
-            obj.Draw(optDict["draw"])
-            if optDict["output"] or optDict["format"] == 'pdf':
+            obj.Draw(drawOptionValue)
+            if outputOptionValue or formatOptionValue == 'pdf':
                 objTitle = "Title:"+key.GetClassName()+" : "+key.GetTitle()
                 canvas.Print(outputFileName,objTitle)
             else:
-                canvas.Print(outputFileName,optDict["format"])
+                canvas.Print(outputFileName,formatOptionValue)
     rootFile.Close()
 
 # End to print (output option)
-if optDict["output"]:
+if outputOptionValue:
     canvas.Print(outputFileName+"]",objTitle)

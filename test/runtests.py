@@ -57,8 +57,9 @@ testCommand("LongRools", "rools -l test.root", "LongRools.ref")
 testCommand("LongRools2", "rools -l test.root:*", "LongRools2.ref")
 testCommand("LongRools3", "rools -l test.root:tof", "LongRools3.ref")
 testCommand("LongRools4", "rools -l test.root:tof/*", "LongRools4.ref")
-testCommand("WebRools", "rools http://root.cern.ch/files/pippa.root", "WebRools.ref")
+testCommand("WebRools", "rools http://root.cern.ch/root/files/pippa.root", "WebRools.ref")
 testCommand("WebRools2", "rools -l http://root.cern.ch/files/pippa.root", "WebRools2.ref")
+
 #########################################################################
 
 ############################## ROOCP TESTS ##############################

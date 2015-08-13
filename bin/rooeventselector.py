@@ -14,13 +14,15 @@ def copyTreeSubset(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict):
     # changeDirectory for the small tree not to be memory-resident
     changeDirectory(destFile,destPathSplit)
     smallTree = bigTree.CloneTree(0)
+    firstOptionValue = optDict["first"]
+    lastOptionValue = optDict["last"]
     firstEvent = \
-        optDict["first"] \
-        if optDict["first"] != None \
+        firstOptionValue \
+        if firstOptionValue != None \
         else 0
     lastEvent = \
-        optDict["last"] \
-        if optDict["last"] != None and optDict["last"] < nbrEntries-1 \
+        lastOptionValue \
+        if lastOptionValue != None and lastOptionValue < nbrEntries-1 \
         else nbrEntries-1
     for i in range(nbrEntries):
         if i >= firstEvent and i <= lastEvent:
@@ -66,25 +68,27 @@ destPathSplit = destPathSplitList[0]
 
 # Create a dictionnary with options
 optDict = vars(args)
+compressOptionValue = optDict["compress"]
 
 # Change the compression settings only on non existing file
-if optDict["compress"] and os.path.isfile(destFileName):
+if compressOptionValue != None and os.path.isfile(destFileName):
     logging.error("can't change compression settings on existing file")
     sys.exit()
 
 # Creation of destination file (changing of the compression settings)
 with stderrRedirected(): destFile = \
-    ROOT.TFile.Open(destFileName,"recreate") \
+    ROOT.TFile(destFileName,"recreate") \
     if optDict["recreate"] else \
-    ROOT.TFile.Open(destFileName,"update")
-if optDict["compress"]: destFile.SetCompressionSettings(optDict["compress"])
+    ROOT.TFile(destFileName,"update")
+if compressOptionValue != None: destFile.SetCompressionSettings(compressOptionValue)
 
 # Loop on the root file
 for sourceFileName, sourcePathSplitList in sourceList:
     with stderrRedirected(): sourceFile = \
-        ROOT.TFile.Open(sourceFileName) \
+        ROOT.TFile(sourceFileName) \
         if sourceFileName != destFileName else \
         destFile
+    zombieExclusion(sourceFile)
     for sourcePathSplit in sourcePathSplitList:
         if isTree(sourceFile,sourcePathSplit): copyTreeSubset( \
             sourceFile,sourcePathSplit, \

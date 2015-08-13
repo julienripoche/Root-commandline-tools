@@ -269,7 +269,8 @@ indent = 2 if manySources else 0
 first_round_file = True
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
-        rootFile = ROOT.TFile.Open(fileName)
+        rootFile = ROOT.TFile(fileName)
+    zombieExclusion(rootFile)
     objList,dirList = keyClassSpliter(rootFile,pathSplitList)
     keyList = [getKey(rootFile,pathSplit) for pathSplit in objList]
     keyList.sort()
