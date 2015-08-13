@@ -9,6 +9,9 @@
 
 from cmdLineUtils import *
 
+# Error to take in account or let root do ?
+#mkdir: cannot create directory 'aa': File exists
+
 def createDirectory(rootFile,pathSplit):
     """Add a directory named 'pathSplit[-1]'
     in (rootFile,pathSplit[:-1])"""
