@@ -339,13 +339,14 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
                 logging.warning(OVERWRITE_ERROR.format( \
                     objectName,objectName))
         elif isTreeKey(key):
+
             T = key.GetMotherDir().Get(objectName+";"+str(key.GetCycle()))
             if replaceOption and isExisting(destFile,destPathSplit+[T.GetName()]):
                 deleteObject(destFile,destPathSplit+[T.GetName()])
+            changeDirectory(destFile,destPathSplit)
             newT = T.CloneTree(-1,"fast")
             if setName != "":
                 newT.SetName(setName)
-            changeDirectory(destFile,destPathSplit)
             newT.Write()
         else:
             obj = key.ReadObj()
