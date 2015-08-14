@@ -9,28 +9,31 @@
 
 from cmdLineUtils import *
 
-# Error to take in account or let root do ?
-#mkdir: cannot create directory 'aa': File exists
-
-def createDirectory(rootFile,pathSplit):
-    """Add a directory named 'pathSplit[-1]'
-    in (rootFile,pathSplit[:-1])"""
-    changeDirectory(rootFile,pathSplit[:-1])
-    ROOT.gDirectory.mkdir(pathSplit[-1])
+MKDIR_ERROR = "cannot create directory '{0}'"
 
 def createDirectories(rootFile,pathSplit,optDict):
     """Same behaviour as createDirectory but allows the possibility
     to build an whole path recursively with opt_dict["parents"]"""
-    if not optDict["parents"] and pathSplit != []:
-        createDirectory(rootFile,pathSplit)
-    else:
+    if pathSplit == []:
+        pass
+    elif optDict["parents"]:
         for i in range(len(pathSplit)):
             currentPathSplit = pathSplit[:i+1]
-            objNameList = \
-                [key.GetName() for key in \
-                getKeyList(rootFile,currentPathSplit[:-1])]
-            if not currentPathSplit[-1] in objNameList:
+            if not (isExisting(rootFile,currentPathSplit) \
+                and isDirectory(rootFile,currentPathSplit)):
                 createDirectory(rootFile,currentPathSplit)
+    else:
+        doMkdir = True
+        for i in range(len(pathSplit)-1):
+            currentPathSplit = pathSplit[:i+1]
+            if not (isExisting(rootFile,currentPathSplit) \
+                and isDirectory(rootFile,currentPathSplit)):
+                doMkdir = False
+                break
+        if doMkdir:
+            createDirectory(rootFile,pathSplit)
+        else:
+            logging.warning(MKDIR_ERROR.format("/".join(pathSplit)))
 
 # Help strings
 COMMAND_HELP = \
@@ -60,6 +63,5 @@ optDict = vars(args)
 for fileName, pathSplitList in sourceList:
     with stderrRedirected():
         rootFile = ROOT.TFile(fileName,"update")
-    for pathSplit in pathSplitList:
-        createDirectories(rootFile,pathSplit,optDict)
+    createDirectories(rootFile,pathSplitList[0],optDict)
     rootFile.Close()

@@ -9,27 +9,25 @@
 
 from cmdLineUtils import *
 
+# Ansi characters
 ANSI_BOLD = "\x1B[1m"
 ANSI_BLUE = "\x1B[34m"
 ANSI_GREEN = "\x1B[32m"
 ANSI_END = "\x1B[0m"
 
+# Needed for column width calculation
 ANSI_BOLD_LENGTH = len(ANSI_BOLD+ANSI_END)
 ANSI_BLUE_LENGTH = len(ANSI_BLUE+ANSI_END)
 ANSI_GREEN_LENGTH = len(ANSI_GREEN+ANSI_END)
 
-def isTerminal():
-    """Return True if the output is a terminal"""
-    return sys.stdout.isatty()
-
-def isWin32():
-    """Return True if the platform is Windows"""
-    return sys.platform == 'win32'
+# Terminal and platform booleans
+IS_TERMINAL = sys.stdout.isatty()
+IS_WIN32 = sys.platform == 'win32'
 
 def isSpecial(ansiCode,string):
     """Use ansi code on 'string' if the output is the
     terminal of a not Windows platform"""
-    if isTerminal() and not isWin32(): return ansiCode+string+ANSI_END
+    if IS_TERMINAL and not IS_WIN32: return ansiCode+string+ANSI_END
     else: return string
 
 def keyListSort(keyList):
@@ -229,7 +227,7 @@ def roolsPrintSimpleLs(keyList,indent):
         if i%ncol == 0: write("",indent) # indentation
         # Don't add spaces after the last element of the line or of the list
         if (i+1)%ncol != 0 and i != len(keyList)-1:
-            if not isTerminal(): write( \
+            if not IS_TERMINAL: write( \
                 key.GetName().ljust(col_widths[i%ncol]))
             elif isDirectoryKey(keyList[i]): write( \
                 isSpecial(ANSI_BLUE,key.GetName()).ljust( \
@@ -239,7 +237,7 @@ def roolsPrintSimpleLs(keyList,indent):
                     col_widths[i%ncol] + ANSI_GREEN_LENGTH))
             else: write(key.GetName().ljust(col_widths[i%ncol]))
         else: # No spaces after the last element of the line or of the list
-            if not isTerminal(): write(key.GetName())
+            if not IS_TERMINAL: write(key.GetName())
             elif isDirectoryKey(keyList[i]):
                 write(isSpecial(ANSI_BLUE, key.GetName()))
             elif isTreeKey(keyList[i]):

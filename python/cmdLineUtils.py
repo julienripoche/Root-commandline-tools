@@ -47,13 +47,12 @@ def stdoutRedirected():
 def stderrRedirected():
      return streamRedirected(sys.stderr, os.devnull)
 
-#Not on all version of python...
-#with stdoutRedirected(), stderrRedirected():
-    #...
+# Not on all version of python...
+# with stdoutRedirected(), stderrRedirected():
+#     ...
 
-# The end of stdoutRedirected function
+# The end of streamRedirected function
 ##
-
 
 # redirect output (escape characters during ROOT importation...)
 with stdoutRedirected():
@@ -72,16 +71,24 @@ def changeDirectory(rootFile,pathSplit):
     # This function has no protection because 'rootFile' should be
     # a real ROOT file and 'pathSplit' a real directory path.
     # If an error occurs in this function it means that the
-    # arguments are defective.
+    # arguments are defectives.
     rootFile.cd()
     for directoryName in pathSplit:
         ROOT.gDirectory.Get(directoryName).cd()
 
-def getKey(rootFile,pathSplit):
-    """Get the key of the corresponding object
-    (rootFile,pathSplit)"""
+def createDirectory(rootFile,pathSplit):
+    """Add a directory named 'pathSplit[-1]'
+    in (rootFile,pathSplit[:-1])"""
+    # To be used with "not isExisting(rootFile,pathSplit)"
     changeDirectory(rootFile,pathSplit[:-1])
-    return ROOT.gDirectory.GetKey(pathSplit[-1])
+    ROOT.gDirectory.mkdir(pathSplit[-1])
+
+def deleteObject(rootFile,pathSplit):
+    """Delete the object 'pathSplit[-1]'
+    from (rootFile,pathSplit[:-1])"""
+    # To be used with "isExisting(rootFile,pathSplit)"
+    changeDirectory(rootFile,pathSplit[:-1])
+    ROOT.gDirectory.Delete(pathSplit[-1]+";*")
 
 def isExisting(rootFile,pathSplit):
     """Return True if the object, corresponding to
@@ -96,18 +103,24 @@ def isDirectoryKey(key):
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TDirectory.Class())
 
-def isDirectory(rootFile,pathSplit):
-    """Return True if the object, corresponding to (rootFile,pathSplit),
-    inherits from TDirectory, False if not"""
-    if pathSplit == []: return True # the object is the rootFile itself
-    else: return isDirectoryKey(getKey(rootFile,pathSplit))
-
 def isTreeKey(key):
     """Return True if the object, corresponding to the key,
     inherits from TTree, False if not"""
     classname = key.GetClassName()
     cl = ROOT.gROOT.GetClass(classname)
     return cl.InheritsFrom(ROOT.TTree.Class())
+
+def getKey(rootFile,pathSplit):
+    """Get the key of the corresponding object
+    (rootFile,pathSplit)"""
+    changeDirectory(rootFile,pathSplit[:-1])
+    return ROOT.gDirectory.GetKey(pathSplit[-1])
+
+def isDirectory(rootFile,pathSplit):
+    """Return True if the object, corresponding to (rootFile,pathSplit),
+    inherits from TDirectory, False if not"""
+    if pathSplit == []: return True # the object is the rootFile itself
+    else: return isDirectoryKey(getKey(rootFile,pathSplit))
 
 def isTree(rootFile,pathSplit):
     """Return True if the object, corresponding to (rootFile,pathSplit),
@@ -222,7 +235,6 @@ def patternToFileNameAndPathSplitList(pattern,wildcards = True):
         for i in glob.iglob(patternSplit[0])] \
         if wildcards else \
         [os.path.expandvars(os.path.expanduser(patternSplit[0]))]
-
     #fileList = []
     #patternSplit = pattern.rsplit(":", 1)
     #fileNameList = \
@@ -232,7 +244,6 @@ def patternToFileNameAndPathSplitList(pattern,wildcards = True):
     #    [os.path.expandvars(os.path.expanduser(patternSplit[0]))]
     #if fileNameList == []:
     #    fileNameList == [patternSplit[0]]
-
     for fileName in fileNameList:
         # there is a pattern of path in the ROOT file
         if len(patternSplit)>1 : pathSplitList = \
@@ -251,69 +262,61 @@ OVERWRITE_ERROR = "cannot overwrite non-directory '{0}' with directory '{1}'"
 def copyRootObject(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,oneSource=False):
     """Initialize the recursive function 'copyRootObjectRecursive',
     written to be as unix-like as possible"""
-
-    recursiveOption = optDict["recursive"]
     isMultipleInput = not (oneSource and sourcePathSplit != [])
-    toContinue = True
-    setName = ""
-
+    recursiveOption = optDict["recursive"]
+    # Multiple input and unexisting or non-directory destination
+    # TARGET_ERROR
     if isMultipleInput and destPathSplit != [] \
         and not (isExisting(destFile,destPathSplit) \
         and isDirectory(destFile,destPathSplit)):
         logging.warning(TARGET_ERROR.format(destPathSplit[-1]))
-        toContinue = False # return ?
-
-    elif not recursiveOption:
+        return
+    # Entire ROOT file or directory in input omitting "-r" option
+    # OMITTING_FILE_ERROR or OMITTING_DIRECTORY_ERROR
+    if not recursiveOption:
         if sourcePathSplit == []:
             logging.warning(OMITTING_FILE_ERROR.format( \
                 sourceFile.GetName()))
-            toContinue = False # return ?
-        elif isDirectory(sourceFile,sourcePathSplit):
+            return
+        if isDirectory(sourceFile,sourcePathSplit):
             logging.warning(OMITTING_DIRECTORY_ERROR.format( \
                 sourcePathSplit[-1]))
-            toContinue = False # return ?
-
-    if toContinue:
-        if sourcePathSplit == []:
-            copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                destFile,destPathSplit,optDict)
-        else:
-            if not isMultipleInput and (destPathSplit != [] \
-                and not isExisting(destFile,destPathSplit)):
-                setName = destPathSplit[-1]
-            key = getKey(sourceFile,sourcePathSplit)
-            if isDirectoryKey(key):
-                if setName != "":
-                    changeDirectory(destFile,destPathSplit[:-1])
-                    ROOT.gDirectory.mkdir(setName)
+            return
+    # Run copyRootObjectRecursive function with the wish
+    # to follow the unix copy behaviour
+    if sourcePathSplit == []:
+        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+            destFile,destPathSplit,optDict)
+    else:
+        setName = ""
+        if not isMultipleInput and (destPathSplit != [] \
+            and not isExisting(destFile,destPathSplit)):
+            setName = destPathSplit[-1]
+        objectName = sourcePathSplit[-1]
+        if isDirectory(sourceFile,sourcePathSplit):
+            if setName != "":
+                createDirectory(destFile,destPathSplit[:-1]+[setName])
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit[:-1]+[setName],optDict)
+            elif isDirectory(destFile,destPathSplit):
+                if not isExisting(destFile,destPathSplit+[objectName]):
+                    createDirectory(destFile,destPathSplit+[objectName])
+                if isDirectory(destFile,destPathSplit+[objectName]):
                     copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit[:-1]+[setName],optDict)
-                elif isDirectory(destFile,destPathSplit):
-                    changeDirectory(destFile,destPathSplit)
-                    if not ROOT.gDirectory.GetListOfKeys().Contains( \
-                        key.GetName()):
-                        ROOT.gDirectory.mkdir(key.GetName())
-                        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                            destFile,destPathSplit+[key.GetName()],optDict)
-                    elif isDirectory(destFile,destPathSplit+[key.GetName()]):
-                        copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                            destFile,destPathSplit+[key.GetName()],optDict)
-                    else:
-                        logging.warning(OVERWRITE_ERROR.format( \
-                            key.GetName(),key.GetName()))
+                        destFile,destPathSplit+[objectName],optDict)
                 else:
                     logging.warning(OVERWRITE_ERROR.format( \
-                        destPathSplit[-1],key.GetName()))
+                        objectName,objectName))
             else:
-                if setName != "":  
-                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit[:-1],optDict,setName)
-                elif isDirectory(destFile,destPathSplit):
-                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit,optDict)
-                else:
-                    copyRootObjectRecursive(sourceFile,sourcePathSplit, \
-                        destFile,destPathSplit[:-1],optDict)
+                logging.warning(OVERWRITE_ERROR.format( \
+                    destPathSplit[-1],objectName))
+        else:
+            if isDirectory(destFile,destPathSplit):
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit,optDict)
+            else:
+                copyRootObjectRecursive(sourceFile,sourcePathSplit, \
+                    destFile,destPathSplit[:-1],optDict,setName)
 
 def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,optDict,setName=""):
     """Copy objects from a file or directory (sourceFile,sourcePathSplit)
@@ -324,38 +327,33 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
       $ROOTSYS/tutorials/io/copyFiles.C"""
     replaceOption = optDict["replace"]
     for key in getKeyList(sourceFile,sourcePathSplit):
+        objectName = key.GetName()
         if isDirectoryKey(key):
-            changeDirectory(destFile,destPathSplit)
-            if not ROOT.gDirectory.GetListOfKeys().Contains(key.GetName()):
-                ROOT.gDirectory.mkdir(key.GetName())
+            if not isExisting(destFile,destPathSplit+[objectName]):
+                createDirectory(destFile,destPathSplit+[objectName])
+            if isDirectory(destFile,destPathSplit+[objectName]):
                 copyRootObjectRecursive(sourceFile, \
-                    sourcePathSplit+[key.GetName()], \
-                    destFile,destPathSplit+[key.GetName()],optDict)
-            elif isDirectory(destFile,destPathSplit+[key.GetName()]):
-                copyRootObjectRecursive(sourceFile, \
-                    sourcePathSplit+[key.GetName()], \
-                    destFile,destPathSplit+[key.GetName()],optDict)
+                    sourcePathSplit+[objectName], \
+                    destFile,destPathSplit+[objectName],optDict)
             else:
                 logging.warning(OVERWRITE_ERROR.format( \
-                    key.GetName(),key.GetName()))
+                    objectName,objectName))
         elif isTreeKey(key):
-            T = key.GetMotherDir().Get(key.GetName()+";"+str(key.GetCycle()))
-            changeDirectory(destFile,destPathSplit)
-            if replaceOption and ROOT.gDirectory \
-                .GetListOfKeys().Contains(T.GetName()):
-                ROOT.gDirectory.Delete(T.GetName()+";*")
+            T = key.GetMotherDir().Get(objectName+";"+str(key.GetCycle()))
+            if replaceOption and isExisting(destFile,destPathSplit+[T.GetName()]):
+                deleteObject(destFile,destPathSplit+[T.GetName()])
             newT = T.CloneTree(-1,"fast")
             if setName != "":
                 newT.SetName(setName)
+            changeDirectory(destFile,destPathSplit)
             newT.Write()
         else:
             obj = key.ReadObj()
-            changeDirectory(destFile,destPathSplit)
-            if replaceOption and ROOT.gDirectory \
-                .GetListOfKeys().Contains(obj.GetName()):
-                ROOT.gDirectory.Delete(obj.GetName()+";*")
+            if replaceOption and isExisting(destFile,destPathSplit+[obj.GetName()]):
+                deleteObject(destFile,destPathSplit+[obj.GetName()])
             if setName != "":
                 obj.SetName(setName)
+            changeDirectory(destFile,destPathSplit)
             obj.Write()
             obj.Delete()
     changeDirectory(destFile,destPathSplit)
@@ -363,28 +361,32 @@ def copyRootObjectRecursive(sourceFile,sourcePathSplit,destFile,destPathSplit,op
 
 FILE_REMOVE_ERROR = "cannot remove '{0}': Is a ROOT file"
 DIRECTORY_REMOVE_ERROR = "cannot remove '{0}': Is a directory"
+ASK_FILE_REMOVE = "Are you sure to remove '{0}' ? (y/n) : "
+ASK_OBJECT_REMOVE = "Are you sure to remove '{0}' from '{1}' ? (y/n) : "
 
-def deleteRootObject(rootFile,pathSplit,optDict={'interactive':False,'recursive':False}):
+def deleteRootObject(rootFile,pathSplit,optDict):
     """Remove the object (rootFile,pathSplit)
     -interactive : prompt before every removal
-    -recursive : allow directory (and ROOT file) removal"""
+    -recursive : allow directory, and ROOT file, removal"""
     if not optDict["recursive"] and isDirectory(rootFile,pathSplit):
         if pathSplit == []:
             logging.warning(FILE_REMOVE_ERROR.format(rootFile.GetName()))
         else:
             logging.warning(DIRECTORY_REMOVE_ERROR.format(pathSplit[-1]))
     else:
-        answer = 'y'
-        if optDict['interactive']: answer = \
-           raw_input("Are you sure to remove '{0}' from '{1}' ? (y/n) : " \
-                     .format("/".join(pathSplit),rootFile.GetName())) \
-           if pathSplit != [] else \
-           raw_input("Are you sure to remove '{0}' ? (y/n) : " \
-                     .format(rootFile.GetName()))
-        if answer.lower() == 'y':
+        if optDict['interactive']:
             if pathSplit != []:
-                changeDirectory(rootFile,pathSplit[:-1])
-                ROOT.gDirectory.Delete(pathSplit[-1]+";*")
+                answer = raw_input(ASK_OBJECT_REMOVE \
+                    .format("/".join(pathSplit),rootFile.GetName()))
+            else:
+                answer = raw_input(ASK_FILE_REMOVE \
+                    .format(rootFile.GetName()))
+            remove = answer.lower() == 'y'
+        else:
+            remove = True
+        if remove:
+            if pathSplit != []:
+                deleteObject(rootFile,pathSplit)
             else:
                 rootFile.Close()
                 os.remove(rootFile.GetName())
